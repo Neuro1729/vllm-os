@@ -97,7 +97,7 @@ class ModelRunner:
         seqs = [Sequence([0] * seq_len) for _ in range(num_seqs)]
         for seq in seqs:
             seq.num_scheduled_tokens = seq_len
-        self.run(seqs, True)
+        self.run(seqs)
         torch.cuda.empty_cache()
 
     def allocate_kv_cache(self):
@@ -126,7 +126,11 @@ class ModelRunner:
         block_tables = torch.tensor(block_tables, dtype=torch.int32, pin_memory=True).cuda(non_blocking=True)
         return block_tables
 
-    def prepare_prefill(self, seqs: list[Sequence]):
+    def prepare_unified(self, seqs: list[Sequence]):
+        # One varlen batch for any mix of decode steps and prefill chunks. Each sequence
+        # contributes its new tokens (positions num_cached..num_cached+q) as queries, and
+        # its whole cached context (through the block table) as keys/values. The new KV
+        # entries are written by Attention.forward before attention reads them.
         input_ids = []
         positions = []
         cu_seqlens_q = [0]
@@ -134,33 +138,23 @@ class ModelRunner:
         max_seqlen_q = 0
         max_seqlen_k = 0
         slot_mapping = []
-        block_tables = None
+        has_blocks = [bool(seq.block_table) for seq in seqs]
+        assert all(has_blocks) or not any(has_blocks), "warmup batches must not mix with cached sequences"
         for seq in seqs:
             start = seq.num_cached_tokens
             seqlen_q = seq.num_scheduled_tokens
             end = start + seqlen_q
-            seqlen_k = end
-            input_ids.extend(seq[start:end])
+            input_ids.extend(seq.tokens_slice(start, end))
             positions.extend(range(start, end))
             cu_seqlens_q.append(cu_seqlens_q[-1] + seqlen_q)
-            cu_seqlens_k.append(cu_seqlens_k[-1] + seqlen_k)
+            cu_seqlens_k.append(cu_seqlens_k[-1] + end)
             max_seqlen_q = max(seqlen_q, max_seqlen_q)
-            max_seqlen_k = max(seqlen_k, max_seqlen_k)
+            max_seqlen_k = max(end, max_seqlen_k)
             if not seq.block_table:    # warmup
                 continue
-            start_block = start // self.block_size
-            end_block = (end + self.block_size - 1) // self.block_size
-            for i in range(start_block, end_block):
-                slot_start = seq.block_table[i] * self.block_size
-                if i == start_block:
-                    slot_start += start % self.block_size
-                if i != end_block - 1:
-                    slot_end = seq.block_table[i] * self.block_size + self.block_size
-                else:
-                    slot_end = seq.block_table[i] * self.block_size + end - i * self.block_size
-                slot_mapping.extend(range(slot_start, slot_end))
-        if cu_seqlens_k[-1] > cu_seqlens_q[-1]:    # prefix cache
-            block_tables = self.prepare_block_tables(seqs)
+            for pos in range(start, end):
+                slot_mapping.append(seq.block_table[pos // self.block_size] * self.block_size + pos % self.block_size)
+        block_tables = self.prepare_block_tables(seqs) if all(has_blocks) else None
         input_ids = torch.tensor(input_ids, dtype=torch.int64, pin_memory=True).cuda(non_blocking=True)
         positions = torch.tensor(positions, dtype=torch.int64, pin_memory=True).cuda(non_blocking=True)
         cu_seqlens_q = torch.tensor(cu_seqlens_q, dtype=torch.int32, pin_memory=True).cuda(non_blocking=True)
@@ -211,10 +205,16 @@ class ModelRunner:
             graph.replay()
             return self.model.compute_logits(graph_vars["outputs"][:bs])
 
-    def run(self, seqs: list[Sequence], is_prefill: bool) -> list[int]:
-        input_ids, positions = self.prepare_prefill(seqs) if is_prefill else self.prepare_decode(seqs)
+    def run(self, seqs: list[Sequence]) -> list[int]:
+        # Pure decode batches keep the CUDA-graph path. Anything containing a prefill
+        # chunk, or a mix of phases, runs the unified varlen path in eager mode.
+        pure_decode = all(seq.block_table and seq.num_scheduled_tokens == 1 and seq.in_decode for seq in seqs)
+        if pure_decode:
+            input_ids, positions = self.prepare_decode(seqs)
+        else:
+            input_ids, positions = self.prepare_unified(seqs)
         temperatures = self.prepare_sample(seqs) if self.rank == 0 else None
-        logits = self.run_model(input_ids, positions, is_prefill)
+        logits = self.run_model(input_ids, positions, not pure_decode)
         token_ids = self.sampler(logits, temperatures).tolist() if self.rank == 0 else None
         reset_context()
         return token_ids

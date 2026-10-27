@@ -1,0 +1,19 @@
+# Pinned dependencies for the GPU experiment machine (Linux, NVIDIA GPU, Python 3.10-3.12).
+#
+# UNVERIFIED on GPU hardware: these pins were chosen for torch 2.6 + CUDA 12.4 wheels.
+# They have NOT been installed or tested on a GPU in the development environment.
+# setup_gpu_env.sh validates them at runtime and prints an actionable error if they do not work.
+#
+# torch must come from the CUDA wheel index. setup_gpu_env.sh installs it first with:
+#   --index-url https://download.pytorch.org/whl/cu124
+torch==2.6.0
+triton==3.2.0
+transformers==4.56.0
+safetensors==0.4.5
+xxhash==3.5.0
+numpy==2.2.0
+tqdm==4.66.1
+matplotlib==3.10.0
+pytest==8.3.4
+# flash-attn is installed separately by setup_gpu_env.sh (prebuilt wheel preferred).
+# flash-attn==2.7.4.post1

@@ -100,12 +100,44 @@ class BlockManager:
         seq.num_cached_tokens = 0
         seq.block_table.clear()
 
+    @property
+    def num_free_blocks(self) -> int:
+        return len(self.free_block_ids)
+
     def can_append(self, seq: Sequence) -> bool:
         return len(self.free_block_ids) >= (len(seq) % self.block_size == 1)
 
     def may_append(self, seq: Sequence):
         if len(seq) % self.block_size == 1:
             seq.block_table.append(self._allocate_block())
+
+    def grow(self, seq: Sequence, num_new_blocks: int):
+        # Extend a running sequence's block table up to its current num_blocks.
+        for _ in range(num_new_blocks):
+            seq.block_table.append(self._allocate_block())
+
+    def blocks_released_by(self, seqs: list[Sequence]) -> set[int]:
+        # Block ids that would reach ref_count 0 if every sequence in `seqs` were deallocated.
+        drops: dict[int, int] = {}
+        for seq in seqs:
+            for block_id in seq.block_table:
+                drops[block_id] = drops.get(block_id, 0) + 1
+        return {bid for bid, n in drops.items() if self.blocks[bid].ref_count == n}
+
+    def admission_needs(self, seq: Sequence, released: set[int]) -> int:
+        # Free blocks required to admit `seq` once the blocks in `released` are free.
+        # Mirrors can_allocate: an in-use prefix-cache hit costs nothing extra.
+        h = -1
+        credit = 0
+        for i in range(seq.num_blocks - 1):
+            token_ids = seq.block(i)
+            h = self.compute_hash(token_ids, h)
+            block_id = self.hash_to_block_id.get(h, -1)
+            if block_id == -1 or self.blocks[block_id].token_ids != token_ids:
+                break
+            if block_id in self.used_block_ids and block_id not in released:
+                credit += 1
+        return seq.num_blocks - credit
 
     def hash_blocks(self, seq: Sequence):
         start = seq.num_cached_tokens // self.block_size

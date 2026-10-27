@@ -3,12 +3,15 @@ from enum import Enum, auto
 from itertools import count
 
 from nanovllm.sampling_params import SamplingParams
+from nanovllm.engine.mlfq import FeedbackState
 
 
 class SequenceStatus(Enum):
     WAITING = auto()
     RUNNING = auto()
     FINISHED = auto()
+    CANCELLED = auto()
+    REJECTED = auto()
 
 
 class Sequence:
@@ -22,13 +25,14 @@ class Sequence:
         self.last_token = token_ids[-1]
         self.num_tokens = len(self.token_ids)
         self.num_prompt_tokens = len(token_ids)
-        self.num_cached_tokens = 0
-        self.num_scheduled_tokens = 0
+        self.num_cached_tokens = 0    # tokens whose KV entries are already computed
+        self.num_scheduled_tokens = 0  # tokens assigned to the current step
         self.is_prefill = True
         self.block_table = []
         self.temperature = sampling_params.temperature
         self.max_tokens = sampling_params.max_tokens
         self.ignore_eos = sampling_params.ignore_eos
+        self.feedback = FeedbackState()
 
     def __len__(self):
         return self.num_tokens
@@ -43,6 +47,16 @@ class Sequence:
     @property
     def num_completion_tokens(self):
         return self.num_tokens - self.num_prompt_tokens
+
+    @property
+    def num_pending_tokens(self):
+        # Tokens that still need KV entries computed before the next sample.
+        return self.num_tokens - self.num_cached_tokens
+
+    @property
+    def in_decode(self):
+        # Exactly one token (the newest sampled one) is pending: a plain decode step.
+        return self.num_cached_tokens == self.num_tokens - 1
 
     @property
     def prompt_token_ids(self):
@@ -64,17 +78,27 @@ class Sequence:
         assert 0 <= i < self.num_blocks
         return self.token_ids[i*self.block_size: (i+1)*self.block_size]
 
+    def tokens_slice(self, start: int, end: int) -> list[int]:
+        # Works on both the controller (full token_ids) and a tensor-parallel worker,
+        # which only receives last_token for pure decode steps.
+        if len(self.token_ids) == self.num_tokens:
+            return self.token_ids[start:end]
+        assert start == self.num_tokens - 1 and end == self.num_tokens
+        return [self.last_token]
+
     def append_token(self, token_id: int):
         self.token_ids.append(token_id)
         self.last_token = token_id
         self.num_tokens += 1
 
     def __getstate__(self):
-        last_state = self.last_token if not self.is_prefill else self.token_ids
+        pure_decode = self.num_scheduled_tokens == 1 and self.in_decode
+        last_state = self.last_token if pure_decode else self.token_ids
         return (self.num_tokens, self.num_prompt_tokens, self.num_cached_tokens, self.num_scheduled_tokens, self.block_table, last_state)
 
     def __setstate__(self, state):
         self.num_tokens, self.num_prompt_tokens, self.num_cached_tokens, self.num_scheduled_tokens, self.block_table, last_state = state
+        self.feedback = FeedbackState()
         if isinstance(last_state, list):
             self.token_ids = last_state
             self.last_token = self.token_ids[-1]
