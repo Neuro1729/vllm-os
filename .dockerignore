@@ -1,0 +1,7 @@
+# Keep the build context small and keep host results and models out of the image.
+results/
+models/
+.venv-gpu/
+**/__pycache__/
+**/*.pyc
+.pytest_cache/
