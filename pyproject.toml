@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=61"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "vllm-os"
+version = "0.2.0"
+license = "MIT"
+license-files = ["LICENSE"]
+description = "a lightweight vLLM implementation built from scratch"
+requires-python = ">=3.10,<3.13"
+dependencies = [
+    "torch>=2.4.0",
+    "triton>=3.0.0",
+    "transformers>=4.51.0",
+    "flash-attn",
+    "xxhash",
+]
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["nanovllm*"]
