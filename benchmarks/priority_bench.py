@@ -51,6 +51,9 @@ def parse_args():
     p.add_argument("--aging-steps", type=int, default=0)
     p.add_argument("--starvation-steps", type=int, default=0)
     p.add_argument("--min-resident-steps", type=int, default=0)
+    p.add_argument("--pause-victims", action="store_true")
+    p.add_argument("--mlfq-preempt-max-level", type=int, default=-1)
+    p.add_argument("--preempt-min-remaining-tokens", type=int, default=0)
     return p.parse_args()
 
 
@@ -113,6 +116,8 @@ def main():
         starvation_steps=args.starvation_steps, min_resident_steps=args.min_resident_steps,
         mlfq_priority_scale=args.mlfq_priority_scale, preempt_after_steps=args.preempt_after_steps,
         mlfq_max_levels={int(k): int(v) for k, v in (x.split(":") for x in args.mlfq_max_levels.split(",") if x)},
+        pause_victims=args.pause_victims, mlfq_preempt_max_level=args.mlfq_preempt_max_level,
+        preempt_min_remaining_tokens=args.preempt_min_remaining_tokens,
     )
     llm.generate([[1, 2, 3]], SamplingParams(max_tokens=8), use_tqdm=False)    # warm up
     sched = llm.scheduler
@@ -173,7 +178,7 @@ def main():
         f.write(json.dumps(result) + "\n")
     c, a = result["chat"], result["agent"]
     print(f"[{args.label}] chat TTFT p50/p99 {c['ttft_p50']:.3f}/{c['ttft_p99']:.3f}s  e2e p99 {c['e2e_p99']:.2f}s | "
-          f"agent turns {result['agent_turns']} e2e p50 {a['e2e_p50']:.2f}s | {result['output_tokens_per_s']:.0f} tok/s | "
+          f"agent turns {result['agent_turns']} e2e p50 {a['e2e_p50'] or 0:.2f}s | {result['output_tokens_per_s']:.0f} tok/s | "
           f"{result['stats']}")
 
 

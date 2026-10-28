@@ -28,6 +28,13 @@ class Config:
     preempt_after_steps: int = 0    # steps a better request waits at a full batch before it may evict
     min_resident_steps: int = 0    # decode steps a seq runs before it may be preempted for a newcomer
     preemption_mode: str = "recompute"    # recompute | swap | auto
+    # keep a victim's KV blocks on the GPU when the newcomer fits without them; they are
+    # only swapped/recomputed (preemption_mode) once something actually needs those blocks
+    pause_victims: bool = False
+    # mlfq: only requests that never ran before and sit at this level or above may evict a
+    # runner for a batch slot (-1 = any request of strictly better rank may)
+    mlfq_preempt_max_level: int = -1
+    preempt_min_remaining_tokens: int = 0    # runners this close to max_tokens are not evicted for a newcomer
     swap_space: float = 0    # GiB of pinned host memory for swapped-out KV blocks
     swap_min_tokens: int = 0    # auto mode: swap only sequences with at least this many cached tokens
     num_cpu_blocks: int = 0

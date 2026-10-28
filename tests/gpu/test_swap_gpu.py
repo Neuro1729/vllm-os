@@ -55,24 +55,28 @@ def run_preempted(llm, prompt, n, preempt_after):
     return low
 
 
-@pytest.mark.parametrize("mode", ["swap", "recompute"])
+@pytest.mark.parametrize("mode", ["swap", "recompute", "pause"])
 def test_preempted_request_matches_undisturbed_run(llm, mode):
     prompt = "Explain how a multi-level feedback queue scheduler works, step by step."
     n = 48
     ref = llm.generate([prompt], SamplingParams(temperature=GREEDY, max_tokens=n), use_tqdm=False)[0]["token_ids"]
-    llm.scheduler.preemption_mode = mode
+    llm.scheduler.preemption_mode = "swap" if mode == "pause" else mode
+    llm.scheduler.pause_victims = mode == "pause"
     before = dict(llm.scheduler.stats)
     low = run_preempted(llm, prompt, n, preempt_after=20)
     llm.scheduler.preemption_mode = "swap"
+    llm.scheduler.pause_victims = False
 
     stats = llm.scheduler.stats
     assert low.num_preemptions == 1
-    if mode == "swap":
+    if mode == "pause":
+        assert stats["pauses"] == before["pauses"] + 1 and stats["swap_outs"] == before["swap_outs"]
+    elif mode == "swap":
         assert stats["swap_outs"] == before["swap_outs"] + 1 and stats["recomputes"] == before["recomputes"]
     else:
         assert stats["recomputes"] == before["recomputes"] + 1
-    if mode == "swap":
-        assert low.completion_token_ids == ref    # the restored KV cache is bit-exact
+    if mode in ("swap", "pause"):
+        assert low.completion_token_ids == ref    # the restored / untouched KV cache is bit-exact
     else:
         # Re-prefilling rebuilds the KV with the prefill kernel instead of token-by-token decode,
         # so bf16 rounding differs slightly and greedy output may drift many tokens later.

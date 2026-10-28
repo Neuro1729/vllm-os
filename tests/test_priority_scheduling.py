@@ -414,6 +414,108 @@ class TestMLFQ:
         assert not is_prefill    # pinned at level 0, still outranks the fresh priority 1
 
 
+class TestPause:
+    """pause_victims: a victim evicted only for its slot keeps its KV on the GPU."""
+
+    def test_victim_keeps_kv_and_resumes_without_copy(self):
+        sched = make_scheduler(preemption_mode="swap", num_cpu_blocks=8, pause_victims=True)
+        a, b = fill_batch(sched, max_tokens=8)
+        step(sched)
+        table = list(b.block_table)
+        urgent = make_seq(5, start=900, priority=0, max_tokens=2)
+        sched.add(urgent)
+
+        seqs, _ = sched.schedule()
+        swap_out, swap_in = sched.take_swap_ops()
+
+        assert seqs == [urgent] and b.status == SequenceStatus.PAUSED
+        assert b.block_table == table and swap_out == [] and swap_in == []
+        sched.postprocess(seqs, [7], True)
+        check_invariants(sched)
+        run_to_completion(sched)
+        assert sched.stats["pauses"] == 1 and sched.stats["resumes"] == 1
+        assert sched.stats["swap_outs"] == sched.stats["recomputes"] == 0
+        assert b.num_completion_tokens == b.max_tokens
+        assert_all_released(sched)
+
+    def test_paused_kv_is_reclaimed_when_a_newcomer_needs_it(self):
+        # 6 blocks: two runners hold 2 each; the newcomer needs 3, so the paused victim's KV must go
+        sched = make_scheduler(preemption_mode="swap", num_cpu_blocks=8, pause_victims=True, num_kvcache_blocks=6)
+        fill_batch(sched, prompt_len=6, max_tokens=10)
+        urgent = make_seq(10, start=900, priority=0, max_tokens=2)
+        sched.add(urgent)
+        seqs, _ = sched.schedule()
+        assert seqs == [urgent]
+        assert sched.stats["swap_outs"] == 1 and sched.stats["pauses"] == 0
+        sched.take_swap_ops()
+        sched.postprocess(seqs, [7], True)
+        run_to_completion(sched)
+        assert_all_released(sched)
+
+    def test_decode_pressure_reclaims_paused_before_evicting_a_runner(self):
+        sched = make_scheduler(preemption_mode="swap", num_cpu_blocks=8, pause_victims=True,
+                               num_kvcache_blocks=5, max_num_seqs=1)
+        low = make_seq(8, priority=1, max_tokens=10)    # 2 full blocks
+        sched.add(low)
+        step(sched)
+        high = make_seq(3, start=50, priority=0, max_tokens=14)    # grows to all 5 blocks
+        sched.add(high)
+        step(sched)
+        assert low.status == SequenceStatus.PAUSED
+        for _ in range(12):    # high grows past the 3 free blocks
+            step(sched)
+            check_invariants(sched)
+        assert high.status == SequenceStatus.RUNNING and high.num_preemptions == 0
+        assert low.status == SequenceStatus.SWAPPED and sched.stats["reclaims"] == 1
+        run_to_completion(sched)
+        assert_all_released(sched)
+
+
+class TestPreemptionLimits:
+
+    def test_only_fresh_short_requests_may_evict(self):
+        sched = make_scheduler(scheduling_policy="mlfq", mlfq_level_tokens=(4, 8), max_num_seqs=1,
+                               mlfq_preempt_max_level=0)
+        long = make_seq(10, max_tokens=50)    # level 2
+        sched.add(long)
+        step(sched)
+        mid = make_seq(6, start=50)    # level 1: better rank, but not short
+        sched.add(mid)
+        _, is_prefill = sched.schedule()
+        assert not is_prefill and sched.stats["preemptions"] == 0
+        sched.waiting.clear()
+        short = make_seq(3, start=90)
+        sched.add(short)
+        _, is_prefill = sched.schedule()
+        assert is_prefill and long.status == SequenceStatus.WAITING
+
+    def test_earlier_victim_does_not_evict_after_aging(self):
+        sched = make_scheduler(scheduling_policy="mlfq", mlfq_level_tokens=(4, 8), max_num_seqs=1,
+                               mlfq_preempt_max_level=0, aging_steps=2)
+        old = make_seq(3, max_tokens=100)
+        sched.add(old)
+        for _ in range(7):
+            step(sched)
+        new = make_seq(3, start=50, max_tokens=100)
+        sched.add(new)
+        step(sched)
+        assert old.status == SequenceStatus.WAITING and old.num_preemptions == 1
+        for _ in range(20):
+            step(sched)
+        assert old.level == 0 and new.level > 0    # old now outranks new ...
+        assert new.status == SequenceStatus.RUNNING and sched.stats["preemptions"] == 1    # ... but may not evict
+
+    def test_nearly_finished_runner_is_not_evicted(self):
+        sched = make_scheduler(max_num_seqs=1, preempt_min_remaining_tokens=3)
+        low = make_seq(3, priority=1, max_tokens=4)
+        sched.add(low)
+        step(sched)
+        step(sched)    # 2 of 4 tokens done, 2 left
+        sched.add(make_seq(3, start=50, priority=0))
+        _, is_prefill = sched.schedule()
+        assert not is_prefill and low.status == SequenceStatus.RUNNING
+
+
 class TestStarvation:
 
     def test_low_priority_is_eventually_admitted(self):
@@ -438,7 +540,7 @@ class TestStarvation:
 
 @pytest.mark.parametrize("policy", ["fcfs", "priority", "mlfq"])
 @pytest.mark.parametrize("mode", ["recompute", "swap", "auto"])
-@pytest.mark.parametrize("seed", range(5))
+@pytest.mark.parametrize("seed", range(20))
 def test_random_workload_drains_cleanly(policy, mode, seed):
     rng = random.Random(seed)
     sched = make_scheduler(
@@ -447,6 +549,8 @@ def test_random_workload_drains_cleanly(policy, mode, seed):
         mlfq_level_tokens=(12, 24, 36), aging_steps=7, starvation_steps=25,
         mlfq_priority_scale=rng.choice([1.0, 2.0]), mlfq_max_levels=rng.choice([{}, {0: 1}]),
         min_resident_steps=rng.choice([0, 2]), preempt_after_steps=rng.choice([0, 3]),
+        pause_victims=rng.choice([False, True]), mlfq_preempt_max_level=rng.choice([-1, 0, 1]),
+        preempt_min_remaining_tokens=rng.choice([0, 4]),
     )
     seqs = []
     pending = [(rng.randrange(60), make_seq(rng.randint(1, 30), start=rng.randrange(5) * 40,

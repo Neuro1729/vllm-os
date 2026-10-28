@@ -1,4 +1,4 @@
-from collections import deque
+from collections import defaultdict, deque
 
 from nanovllm.config import Config
 from nanovllm.engine.sequence import Sequence, SequenceStatus
@@ -26,6 +26,12 @@ class Scheduler:
     nothing is evicted: a request that does not fit in the KV cache waits, as in fcfs.
     Running out of KV blocks during decode evicts as in fcfs, but the worst-ranked victim.
     Victims are recomputed or swapped to host memory (preemption_mode).
+
+    With pause_victims, a victim evicted only for its batch slot keeps its KV blocks on the
+    GPU (PAUSED) and resumes without any copy. Its blocks are reclaimed, i.e. swapped or
+    recomputed as above, only once a newcomer or a decode step needs them.
+    mlfq_preempt_max_level and preempt_min_remaining_tokens limit who may evict and who may
+    be evicted, so that preemption only happens where it buys latency for short requests.
     """
 
     def __init__(self, config: Config):
@@ -44,14 +50,24 @@ class Scheduler:
         self.min_resident_steps = getattr(config, "min_resident_steps", 0)
         self.preemption_mode = getattr(config, "preemption_mode", "recompute")
         self.swap_min_tokens = getattr(config, "swap_min_tokens", 0)
+        self.pause_victims = getattr(config, "pause_victims", False)
+        self.mlfq_preempt_max_level = getattr(config, "mlfq_preempt_max_level", -1)
+        self.preempt_min_remaining_tokens = getattr(config, "preempt_min_remaining_tokens", 0)
         self.block_manager = BlockManager(config.num_kvcache_blocks, config.kvcache_block_size,
                                           getattr(config, "num_cpu_blocks", 0))
         self.waiting: deque[Sequence] = deque()
+        self.waiting_sorted = True    # re-sorting a long queue every step costs more than a decode step's worth of CPU
+        # Aging without touching every waiting sequence each step: a sequence that started
+        # waiting at step w is due at the steps congruent to w modulo the period.
+        self.num_steps = 0
+        self.aging_due = defaultdict(dict)    # step % aging_steps -> {id: seq}
+        self.starvation_due = defaultdict(dict)    # step % starvation_steps -> {id: seq}
         self.running: deque[Sequence] = deque()
         self.blocks_to_swap_out: list[tuple[int, int]] = []
         self.blocks_to_swap_in: list[tuple[int, int]] = []
         self.stats = dict(preemptions=0, recomputes=0, recomputed_tokens=0, swap_outs=0, swap_ins=0,
-                          swapped_out_blocks=0, swapped_in_blocks=0, demotions=0, promotions=0)
+                          swapped_out_blocks=0, swapped_in_blocks=0, demotions=0, promotions=0,
+                          pauses=0, resumes=0, reclaims=0)
 
     @property
     def preemptive(self):
@@ -63,6 +79,9 @@ class Scheduler:
     def add(self, seq: Sequence):
         if self.policy == "mlfq":
             self._update_level(seq)    # a long prompt starts in a lower level
+        if self.waiting and self._waiting_key(seq) < self._waiting_key(self.waiting[-1]):
+            self.waiting_sorted = False
+        self._start_waiting(seq)
         self.waiting.append(seq)
 
     def rank(self, seq: Sequence):
@@ -93,9 +112,9 @@ class Scheduler:
         self.block_manager.release_pending_cpu_blocks()
         if self.preemptive:
             self._age_waiting()
-            # A chunked prefill in progress already holds its blocks; it must stay at the head
-            # (as in fcfs), or a newcomer sorted ahead of it could wait forever for those blocks.
-            self.waiting = deque(sorted(self.waiting, key=lambda s: (not s.block_table, self.rank(s), s.seq_id)))
+            if not self.waiting_sorted:
+                self.waiting = deque(sorted(self.waiting, key=self._waiting_key))
+                self.waiting_sorted = True
         scheduled_seqs = []
         num_batched_tokens = 0
 
@@ -109,12 +128,20 @@ class Scheduler:
                 # batch is full: only a strictly better newcomer gets in, by evicting someone
                 if not self.preemptive or not self._preempt_for(seq, scheduled_seqs):
                     break
+            if seq.status == SequenceStatus.PAUSED:
+                self.stats["resumes"] += 1
+                seq.status = SequenceStatus.RUNNING
+                self.waiting.popleft()
+                self._start_running(seq)
+                continue
             if seq.status == SequenceStatus.SWAPPED:
                 if not self._swap_in(seq):
                     break
                 continue
             if not seq.block_table:
                 num_cached_blocks = self.block_manager.can_allocate(seq)
+                if num_cached_blocks == -1 and self._reclaim_paused(self._num_blocks_needed(seq), seq):
+                    num_cached_blocks = self.block_manager.can_allocate(seq)
                 if num_cached_blocks == -1:
                     break
                 num_tokens = seq.num_tokens - num_cached_blocks * self.block_size
@@ -141,6 +168,8 @@ class Scheduler:
         while self.running and len(scheduled_seqs) < self.max_num_seqs:
             seq = self.running.popleft()
             while not self.block_manager.can_append(seq):
+                if self._reclaim_paused(1, seq):
+                    continue
                 if self.running:
                     victim = max(self.running, key=self._victim_key) if self.preemptive else self.running[-1]
                     self.running.remove(victim)
@@ -158,22 +187,55 @@ class Scheduler:
         self.running.extendleft(reversed(scheduled_seqs))
         return scheduled_seqs, False
 
+    def _waiting_key(self, seq: Sequence):
+        # A chunked prefill in progress already holds its blocks; it must stay at the head
+        # (as in fcfs), or a newcomer sorted ahead of it could wait forever for those blocks.
+        # Paused sequences hold blocks too, but can give them back, so they queue by rank.
+        return not (seq.block_table and seq.status == SequenceStatus.WAITING), self.rank(seq), seq.seq_id
+
+    def _start_waiting(self, seq: Sequence):
+        seq.wait_since = self.num_steps
+        if self.aging_steps:
+            self.aging_due[seq.wait_since % self.aging_steps][id(seq)] = seq
+        if self.starvation_steps:
+            self.starvation_due[seq.wait_since % self.starvation_steps][id(seq)] = seq
+
+    def wait_steps(self, seq: Sequence) -> int:
+        """Steps seq has spent waiting/swapped/paused since it was last served."""
+        return self.num_steps - seq.wait_since
+
+    def _due(self, buckets, period: int) -> list[Sequence]:
+        """Waiting sequences that have waited a positive multiple of period steps now."""
+        phase = self.num_steps % period
+        bucket = buckets.get(phase, {})
+        due = []
+        for key, seq in list(bucket.items()):
+            # entries are dropped lazily once the sequence was served or re-queued with another phase
+            if seq.status in (SequenceStatus.RUNNING, SequenceStatus.FINISHED) or seq.wait_since % period != phase:
+                del bucket[key]
+            elif self.wait_steps(seq) > 0:
+                due.append(seq)
+        return due
+
     def _start_running(self, seq: Sequence):
-        seq.wait_steps = 0
         seq.resident_steps = 0
         seq.tier_boost = 0    # boost only lasts until the sequence is served again
         self.running.append(seq)
 
     def _age_waiting(self):
-        for seq in self.waiting:
-            seq.wait_steps += 1
-            if self.aging_steps and seq.wait_steps % self.aging_steps == 0 and seq.level > 0:
-                seq.level -= 1
-                seq.level_start = seq.num_tokens
-                self.stats["promotions"] += 1
-            if self.starvation_steps and seq.wait_steps % self.starvation_steps == 0:
+        self.num_steps += 1
+        if self.aging_steps:
+            for seq in self._due(self.aging_due, self.aging_steps):
+                if seq.level > 0:
+                    seq.level -= 1
+                    seq.level_start = seq.num_tokens
+                    self.stats["promotions"] += 1
+                    self.waiting_sorted = False
+        if self.starvation_steps:
+            for seq in self._due(self.starvation_due, self.starvation_steps):
                 seq.tier_boost += 1
                 self.stats["promotions"] += 1
+                self.waiting_sorted = False
 
     def _victim_key(self, seq: Sequence):
         return (self.rank(seq), seq.seq_id)    # larger = evicted first
@@ -188,8 +250,42 @@ class Scheduler:
         rank = self.rank(seq)
         victims = [s for s in self.running
                    if id(s) not in scheduled and self.rank(s) > rank
-                   and s.resident_steps >= self.min_resident_steps]
+                   and s.resident_steps >= self.min_resident_steps
+                   and s.max_tokens - s.num_completion_tokens >= self.preempt_min_remaining_tokens]
         return sorted(victims, key=self._victim_key, reverse=True)
+
+    def _may_preempt(self, seq: Sequence) -> bool:
+        """Whether seq may evict runners at all. With mlfq_preempt_max_level only fresh, short
+        requests may: re-admitting earlier victims or aged-up long requests only evicts one
+        long request for another and buys no latency."""
+        if self.policy != "mlfq" or self.mlfq_preempt_max_level < 0:
+            return True
+        return seq.num_preemptions == 0 and seq.level <= self.mlfq_preempt_max_level
+
+    def _paused(self, exclude: Sequence) -> list[Sequence]:
+        """Paused sequences whose blocks may be reclaimed, worst rank first."""
+        paused = [s for s in self.waiting if s.status == SequenceStatus.PAUSED and s is not exclude]
+        return sorted(paused, key=self._victim_key, reverse=True)
+
+    def _reclaim_paused(self, num_blocks: int, seq: Sequence) -> bool:
+        """Swap out / drop paused sequences until num_blocks GPU blocks are free (all or nothing).
+
+        Every paused sequence other than seq is queued behind it, so taking its blocks keeps
+        the queue order.
+        """
+        shortfall = num_blocks - len(self.block_manager.free_block_ids)
+        paused = self._paused(seq)
+        if shortfall <= 0 or not paused:
+            return False
+        if sum(map(self.block_manager.num_freeable_blocks, paused)) < shortfall:
+            return False
+        for victim in paused:
+            if shortfall <= 0:
+                break
+            shortfall -= self.block_manager.num_freeable_blocks(victim)
+            self.stats["reclaims"] += 1
+            self._release_kv(victim)
+        return True
 
     def _num_blocks_needed(self, seq: Sequence) -> int:
         if seq.status == SequenceStatus.SWAPPED:
@@ -203,12 +299,21 @@ class Scheduler:
 
         All or nothing, so nobody is evicted for a newcomer that would not fit anyway.
         """
-        if seq.wait_steps < self.preempt_after_steps:
+        if self.wait_steps(seq) < self.preempt_after_steps or not self._may_preempt(seq):
             return False    # be patient, a slot often frees up on its own
         victims = self._victims(seq, scheduled_seqs)
         if not victims:
             return False
-        shortfall = self._num_blocks_needed(seq) - len(self.block_manager.free_block_ids)
+        needed = self._num_blocks_needed(seq)
+        shortfall = needed - len(self.block_manager.free_block_ids)
+        if self.pause_victims:
+            # idle paused KV goes first; if that covers the newcomer, the victim keeps its KV
+            shortfall -= sum(map(self.block_manager.num_freeable_blocks, self._paused(seq)))
+            if shortfall <= 0:
+                self._reclaim_paused(needed, seq)
+                self.running.remove(victims[0])
+                self.preempt(victims[0], keep_kv=True)
+                return True
         plan = victims[:1]
         shortfall -= self.block_manager.num_freeable_blocks(victims[0])
         for victim in victims[1:]:
@@ -221,10 +326,12 @@ class Scheduler:
         for victim in plan:
             self.running.remove(victim)
             self.preempt(victim)
+        if self.pause_victims:
+            self._reclaim_paused(needed, seq)    # the rest, counted above
         return True
 
     def _swap_in(self, seq: Sequence) -> bool:
-        if not self.block_manager.can_swap_in(seq):
+        if not self.block_manager.can_swap_in(seq) and not self._reclaim_paused(len(seq.cpu_block_table), seq):
             return False
         self.blocks_to_swap_in.extend(self.block_manager.swap_in(seq))
         self.stats["swap_ins"] += 1
@@ -240,9 +347,23 @@ class Scheduler:
         # auto: short contexts are about as cheap to recompute as to copy, keep host memory for long ones
         return self.preemption_mode == "swap" or seq.num_cached_tokens >= self.swap_min_tokens
 
-    def preempt(self, seq: Sequence):
+    def preempt(self, seq: Sequence, keep_kv: bool = False):
         seq.num_preemptions += 1
         self.stats["preemptions"] += 1
+        if keep_kv:
+            self.stats["pauses"] += 1
+            seq.status = SequenceStatus.PAUSED
+        else:
+            self._release_kv(seq)
+        self._start_waiting(seq)
+        if self.preemptive:
+            self.waiting.append(seq)    # re-sorted next step; the head may be the seq being admitted
+            self.waiting_sorted = False
+        else:
+            self.waiting.appendleft(seq)
+
+    def _release_kv(self, seq: Sequence):
+        """Free seq's GPU blocks: swap them to host memory or drop them for recompute."""
         if self._should_swap(seq):
             mapping = self.block_manager.swap_out(seq)
             self.blocks_to_swap_out.extend(mapping)
@@ -255,11 +376,6 @@ class Scheduler:
             seq.status = SequenceStatus.WAITING
             seq.is_prefill = True
             self.block_manager.deallocate(seq)
-        seq.wait_steps = 0
-        if self.preemptive:
-            self.waiting.append(seq)    # re-sorted next step; the head may be the seq being admitted
-        else:
-            self.waiting.appendleft(seq)
 
     def postprocess(self, seqs: list[Sequence], token_ids: list[int], is_prefill: bool):
         for seq, token_id in zip(seqs, token_ids):

@@ -9,6 +9,7 @@ class SequenceStatus(Enum):
     WAITING = auto()
     RUNNING = auto()
     SWAPPED = auto()    # KV cache lives in host memory, waiting to be swapped back in
+    PAUSED = auto()     # preempted but KV cache still on the GPU, resumes without any copy
     FINISHED = auto()
 
 
@@ -35,7 +36,7 @@ class Sequence:
         self.tier_boost = 0         # anti-starvation: tiers gained while waiting
         self.level = 0              # MLFQ level, higher = demoted
         self.level_start = 0        # num_tokens when seq entered its current level's band
-        self.wait_steps = 0         # steps spent in waiting/swapped since last served
+        self.wait_since = 0         # Scheduler.num_steps when seq last started waiting
         self.resident_steps = 0     # decode steps since last admitted/resumed
         self.cpu_block_table = []
         self.num_preemptions = 0
