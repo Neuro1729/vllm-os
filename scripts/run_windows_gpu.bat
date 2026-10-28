@@ -20,12 +20,12 @@ if errorlevel 1 goto fail
 :model_ready
 
 rem 3. GPU correctness tests (mlfq policy).
-docker run --rm --gpus all --ipc=host --shm-size=16g -v "%MODEL_DIR%:/models/Qwen3-0.6B:ro" %IMAGE% bash -c "bash scripts/run_gpu_tests.sh --gpu 0 --model /models/Qwen3-0.6B --policy mlfq --skip-setup"
+docker run --rm --gpus all --ipc=host --shm-size=16g -v "%cd%:/workspace" -v "%MODEL_DIR%:/models/Qwen3-0.6B:ro" %IMAGE% bash -c "bash scripts/run_gpu_tests.sh --gpu 0 --model /models/Qwen3-0.6B --policy mlfq --skip-setup"
 if errorlevel 1 goto fail
 
 rem 4. Smoke benchmark. Results are written to .\results on the host.
 if not exist "%cd%\results" mkdir "%cd%\results"
-docker run --rm --gpus all --ipc=host --shm-size=16g -v "%MODEL_DIR%:/models/Qwen3-0.6B:ro" -v "%cd%\results:/workspace/results" %IMAGE% bash -c "bash scripts/run_full_experiment.sh --model /models/Qwen3-0.6B --max-num-seqs 4 --profile smoke --skip-setup"
+docker run --rm --gpus all --ipc=host --shm-size=16g -v "%cd%:/workspace" -v "%MODEL_DIR%:/models/Qwen3-0.6B:ro" -v "%cd%\results:/workspace/results" %IMAGE% bash -c "bash scripts/run_full_experiment.sh --model /models/Qwen3-0.6B --max-num-seqs 4 --profile smoke --skip-setup"
 if errorlevel 1 goto fail
 
 echo.
