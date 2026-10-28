@@ -174,7 +174,7 @@ Mean of 3 seeds:
 What each step did, as measured:
 
 * **Low-overhead queue**: with a long queue (`all-short`) v1 lost 6.1% throughput to fcfs while
-  making exactly the same decisions (identical step counts); the fix brings that to 2.4%.
+  making the same decisions (step counts within 0.2% of fcfs); the fix brings that to 2.4%.
 * **Pause**: every KV copy is gone (about 170 swap-outs and as many swap-ins per run, 0 now) and
   throughput goes up about 1.5% in both batch-full scenarios; agent turns get slightly faster.
 * **Only short newcomers evict**: 44% fewer preemptions (172 -> 97) for the same chat latency;
@@ -192,7 +192,7 @@ requests) it never preempts. Under KV pressure v2 behaves like v1: with free slo
 admission preemption, and decode-time evictions still have to swap.
 
 **Open question.** In `all-short` MLFQ makes the same decisions and runs the same number of
-steps as fcfs, yet is 2-4% slower. Its scheduler costs only about 8 us more per step than fcfs
+steps as fcfs (within 0.2%), yet is 2-4% slower. Its scheduler costs only about 8 us more per step than fcfs
 on that workload, roughly 0.15% of a 5.5 ms step, so the gap is not scheduler CPU time; the root
 cause is not identified. It disappears with mixed batching (below): there MLFQ v2 runs at 1554
 vs 1558 tok/s for fcfs, with the same run order, and priority-swap, which pins the same 4 GiB of
