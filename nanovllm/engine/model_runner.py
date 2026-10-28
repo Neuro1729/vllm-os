@@ -110,7 +110,10 @@ class ModelRunner:
         num_kv_heads = hf_config.num_key_value_heads // self.world_size
         head_dim = getattr(hf_config, "head_dim", hf_config.hidden_size // hf_config.num_attention_heads)
         block_bytes = 2 * hf_config.num_hidden_layers * self.block_size * num_kv_heads * head_dim * hf_config.dtype.itemsize
-        config.num_kvcache_blocks = int(total * config.gpu_memory_utilization - used - peak + current) // block_bytes
+        num_kvcache_blocks = int(total * config.gpu_memory_utilization - used - peak + current) // block_bytes
+        if config.num_kvcache_blocks > 0:
+            num_kvcache_blocks = min(num_kvcache_blocks, config.num_kvcache_blocks)
+        config.num_kvcache_blocks = num_kvcache_blocks
         assert config.num_kvcache_blocks > 0
         self.kv_cache = torch.empty(2, hf_config.num_hidden_layers, config.num_kvcache_blocks, self.block_size, num_kv_heads, head_dim)
         layer_id = 0
@@ -119,6 +122,26 @@ class ModelRunner:
                 module.k_cache = self.kv_cache[0, layer_id]
                 module.v_cache = self.kv_cache[1, layer_id]
                 layer_id += 1
+        # Host-side swap space, one contiguous pinned slab per block so each copy is a single DMA.
+        config.num_cpu_blocks = int(config.swap_space * 2**30) // block_bytes
+        self.cpu_kv_cache = torch.empty(config.num_cpu_blocks, *self.kv_cache[:, :, 0].shape,
+                                        dtype=self.kv_cache.dtype, device="cpu", pin_memory=config.num_cpu_blocks > 0)
+
+    def swap_blocks(self, swap_out: list[tuple[int, int]], swap_in: list[tuple[int, int]]):
+        # Everything is queued on the compute stream, so the copies are ordered against the
+        # forward pass: swapped-out blocks are read before this step reuses them, and
+        # swapped-in blocks are written before attention reads them.
+        if swap_out:
+            gpu_ids = torch.tensor([g for g, _ in swap_out], dtype=torch.int64, device="cuda")
+            staged = self.kv_cache.index_select(2, gpu_ids).movedim(2, 0).contiguous()
+            for j, (_, cpu_id) in enumerate(swap_out):
+                self.cpu_kv_cache[cpu_id].copy_(staged[j], non_blocking=True)
+        if swap_in:
+            gpu_ids = torch.tensor([g for _, g in swap_in], dtype=torch.int64, device="cuda")
+            staged = torch.empty(len(swap_in), *self.cpu_kv_cache.shape[1:], dtype=self.kv_cache.dtype, device="cuda")
+            for j, (cpu_id, _) in enumerate(swap_in):
+                staged[j].copy_(self.cpu_kv_cache[cpu_id], non_blocking=True)
+            self.kv_cache.index_copy_(2, gpu_ids, staged.movedim(0, 2))
 
     def prepare_block_tables(self, seqs: list[Sequence]):
         max_len = max(len(seq.block_table) for seq in seqs)
@@ -211,7 +234,9 @@ class ModelRunner:
             graph.replay()
             return self.model.compute_logits(graph_vars["outputs"][:bs])
 
-    def run(self, seqs: list[Sequence], is_prefill: bool) -> list[int]:
+    def run(self, seqs: list[Sequence], is_prefill: bool, swap_out=(), swap_in=()) -> list[int]:
+        if swap_out or swap_in:
+            self.swap_blocks(swap_out, swap_in)
         input_ids, positions = self.prepare_prefill(seqs) if is_prefill else self.prepare_decode(seqs)
         temperatures = self.prepare_sample(seqs) if self.rank == 0 else None
         logits = self.run_model(input_ids, positions, is_prefill)

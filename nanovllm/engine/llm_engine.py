@@ -44,13 +44,22 @@ class LLMEngine:
         if isinstance(prompt, str):
             prompt = self.tokenizer.encode(prompt)
         seq = Sequence(prompt, sampling_params)
+        seq.arrival_time = perf_counter()
         self.scheduler.add(seq)
+        return seq
 
     def step(self):
         seqs, is_prefill = self.scheduler.schedule()
         num_tokens = sum(seq.num_scheduled_tokens for seq in seqs) if is_prefill else -len(seqs)
-        token_ids = self.model_runner.call("run", seqs, is_prefill)
+        swap_out, swap_in = self.scheduler.take_swap_ops()
+        token_ids = self.model_runner.call("run", seqs, is_prefill, swap_out, swap_in)
         self.scheduler.postprocess(seqs, token_ids, is_prefill)
+        now = perf_counter()
+        for seq in seqs:
+            if seq.first_token_time is None and seq.num_completion_tokens:
+                seq.first_token_time = now
+            if seq.is_finished:
+                seq.finish_time = now
         outputs = [(seq.seq_id, seq.completion_token_ids) for seq in seqs if seq.is_finished]
         return outputs, num_tokens
 

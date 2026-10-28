@@ -8,6 +8,7 @@ from nanovllm.sampling_params import SamplingParams
 class SequenceStatus(Enum):
     WAITING = auto()
     RUNNING = auto()
+    SWAPPED = auto()    # KV cache lives in host memory, waiting to be swapped back in
     FINISHED = auto()
 
 
@@ -29,6 +30,16 @@ class Sequence:
         self.temperature = sampling_params.temperature
         self.max_tokens = sampling_params.max_tokens
         self.ignore_eos = sampling_params.ignore_eos
+        # scheduling state, see Scheduler
+        self.priority = sampling_params.priority
+        self.tier_boost = 0         # anti-starvation: tiers gained while waiting
+        self.level = 0              # MLFQ level, higher = demoted
+        self.level_start = 0        # num_tokens when seq entered its current level's band
+        self.wait_steps = 0         # steps spent in waiting/swapped since last served
+        self.resident_steps = 0     # decode steps since last admitted/resumed
+        self.cpu_block_table = []
+        self.num_preemptions = 0
+        self.arrival_time = self.first_token_time = self.finish_time = None
 
     def __len__(self):
         return self.num_tokens
@@ -39,6 +50,10 @@ class Sequence:
     @property
     def is_finished(self):
         return self.status == SequenceStatus.FINISHED
+
+    @property
+    def effective_priority(self):
+        return self.priority - self.tier_boost
 
     @property
     def num_completion_tokens(self):
