@@ -16,8 +16,14 @@ echo === cuda-graph mode ===
 docker run --rm --gpus all --ipc=host --shm-size=16g -v "%cd%:/workspace" -v "%MODEL_DIR%:/models/Qwen3-0.6B:ro" %IMAGE% python scripts/diagnose_gpu_decode.py --model /models/Qwen3-0.6B
 
 echo.
-echo === chunked prefill vs unchunked (control: two unchunked runs) ===
-docker run --rm --gpus all --ipc=host --shm-size=16g -v "%cd%:/workspace" -v "%MODEL_DIR%:/models/Qwen3-0.6B:ro" %IMAGE% python scripts/diagnose_chunked_prefill.py --model /models/Qwen3-0.6B
+echo === chunked prefill vs unchunked (each run in its own process) ===
+docker run --rm --gpus all --ipc=host --shm-size=16g -v "%cd%:/workspace" -v "%MODEL_DIR%:/models/Qwen3-0.6B:ro" %IMAGE% python scripts/diagnose_chunked_prefill.py --model /models/Qwen3-0.6B --budget 16384 --label unchunked-A
+
+echo.
+docker run --rm --gpus all --ipc=host --shm-size=16g -v "%cd%:/workspace" -v "%MODEL_DIR%:/models/Qwen3-0.6B:ro" %IMAGE% python scripts/diagnose_chunked_prefill.py --model /models/Qwen3-0.6B --budget 16384 --label unchunked-B
+
+echo.
+docker run --rm --gpus all --ipc=host --shm-size=16g -v "%cd%:/workspace" -v "%MODEL_DIR%:/models/Qwen3-0.6B:ro" %IMAGE% python scripts/diagnose_chunked_prefill.py --model /models/Qwen3-0.6B --budget 128 --label chunked-128
 
 echo.
 echo Diagnostic finished. Paste all outputs.
