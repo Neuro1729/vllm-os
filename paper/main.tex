@@ -510,8 +510,20 @@ priority-swap      & 25\,ms  & 42\,ms  & 1.28\,s & 1860 & 135 & 135 \\
 
 \subsection{Main results}
 
-Table~\ref{tab:main} compares the final configurations; Figure~\ref{fig:mixed} shows the effect of
-mixed batching on each policy.
+Figure~\ref{fig:bars} puts the schedulers side by side, Table~\ref{tab:main} lists the final
+configurations, and Figure~\ref{fig:mixed} shows the effect of mixed batching on each policy.
+Appendix~\ref{app:scenarios} has one bar chart per scenario with all metrics.
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=\linewidth]{figures/bars.png}
+\caption{Schedulers side by side in the three saturated scenarios, mean of three seeds. Left: chat
+TTFT p99 (log scale). Middle: output throughput relative to the original \fcfs{} scheduler in the
+same scenario (\fcfs{} itself is 0 by definition and not drawn). Right: KV blocks copied between GPU
+and host per run. \vtwo{} with mixed batching has the lowest chat latency everywhere, loses at most
+0.8\% throughput, and copies nothing while the batch, not the KV cache, is the bottleneck.}
+\label{fig:bars}
+\end{figure}
 
 \begin{table}[t]
 \centering
@@ -634,6 +646,50 @@ fresh short requests evict, and pausing victims instead of copying their KV cach
 blocking that vLLM issue \#40004 reports while leaving the server's normal behaviour untouched. With
 mixed prefill/decode batching the cost against the original scheduler is within measurement noise.
 
+%=====================================================================
+\appendix
+\section{Per-scenario results}
+\label{app:scenarios}
+
+Figures~\ref{fig:sc-batch-cap}--\ref{fig:sc-all-short} show every metric for every configuration,
+one scenario per figure. Bars are means over three seeds, whiskers span the minimum and maximum
+seed, and the factor under each value is relative to \fcfs{} in the same scenario.
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/scenario-batch-cap.png}
+\caption{Batch full (8 slots, 12 agents, 4 chats/s), chat has priority: the \#40004 case.}
+\label{fig:sc-batch-cap}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/scenario-no-priority.png}
+\caption{Batch full, chat and agents with the same priority: only MLFQ can tell them apart.}
+\label{fig:sc-no-priority}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/scenario-kv-pressure.png}
+\caption{KV cache full (10k tokens) with free batch slots: no admission preemption by design.}
+\label{fig:sc-kv-pressure}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/scenario-normal.png}
+\caption{Normal load, the batch never fills: MLFQ never preempts and matches \fcfs{}.}
+\label{fig:sc-normal}
+\end{figure}
+
+\begin{figure}[h]
+\centering
+\includegraphics[width=\linewidth]{figures/scenario-all-short.png}
+\caption{Only short requests (chat at 40/s, overloaded): every request is in level 0, so MLFQ never preempts; there are no agents, so agent latency is not shown.}
+\label{fig:sc-all-short}
+\end{figure}
+\clearpage
 %=====================================================================
 \begin{thebibliography}{99}
 %=====================================================================

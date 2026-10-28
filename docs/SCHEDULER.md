@@ -298,6 +298,16 @@ v2 section. Raw numbers in `results/mixed_bench.jsonl`, chart from `python -m be
 
 ![mixed batching](img/mixed.png)
 
+Side by side as bar charts (`python -m benchmarks.plot_bars` and `python -m benchmarks.plot_scenarios`):
+
+![schedulers side by side](img/bars.png)
+
+![batch-cap](img/scenario-batch-cap.png)
+![no-priority](img/scenario-no-priority.png)
+![kv-pressure](img/scenario-kv-pressure.png)
+![normal](img/scenario-normal.png)
+![all-short](img/scenario-all-short.png)
+
 Mean of 3 seeds; "vs fcfs" is throughput relative to nano-vllm's original scheduler (fcfs,
 separate prefill steps) in the same scenario:
 
