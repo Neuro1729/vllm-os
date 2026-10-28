@@ -516,6 +516,39 @@ class TestPreemptionLimits:
         assert not is_prefill and low.status == SequenceStatus.RUNNING
 
 
+class TestMixedBatching:
+
+    def test_runners_keep_decoding_while_a_newcomer_prefills(self):
+        sched = make_scheduler(scheduling_policy="fcfs", mixed_batching=True, max_num_seqs=4)
+        a, b = fill_batch(sched)
+        new = make_seq(5, start=900)
+        sched.add(new)
+        before = a.num_tokens, b.num_tokens
+        seqs, is_prefill = step(sched)
+        assert is_prefill and seqs[0] is new and set(seqs[1:]) == {a, b}
+        assert (a.num_tokens, b.num_tokens) == (before[0] + 1, before[1] + 1)
+        assert new.num_completion_tokens == 1    # prefill sampled its first token
+        seqs, is_prefill = step(sched)
+        assert not is_prefill and set(seqs) == {a, b, new}
+
+    def test_long_prompt_is_chunked_next_to_decodes(self):
+        sched = make_scheduler(scheduling_policy="fcfs", mixed_batching=True, max_num_seqs=4,
+                               max_num_batched_tokens=8)
+        a, b = fill_batch(sched, prompt_len=3)
+        long = make_seq(20, start=900, max_tokens=3)
+        sched.add(long)
+        chunks = []
+        while long.status != SequenceStatus.RUNNING:
+            seqs, _ = step(sched)
+            check_invariants(sched)
+            assert a in seqs and b in seqs    # never stalled by the prefill
+            chunks.append(long.num_cached_tokens)
+        assert chunks == [6, 12, 18, 20]    # 8-token budget minus the 2 decodes
+        run_to_completion(sched)
+        assert long.num_completion_tokens == 3
+        assert_all_released(sched)
+
+
 class TestStarvation:
 
     def test_low_priority_is_eventually_admitted(self):
@@ -550,7 +583,7 @@ def test_random_workload_drains_cleanly(policy, mode, seed):
         mlfq_priority_scale=rng.choice([1.0, 2.0]), mlfq_max_levels=rng.choice([{}, {0: 1}]),
         min_resident_steps=rng.choice([0, 2]), preempt_after_steps=rng.choice([0, 3]),
         pause_victims=rng.choice([False, True]), mlfq_preempt_max_level=rng.choice([-1, 0, 1]),
-        preempt_min_remaining_tokens=rng.choice([0, 4]),
+        preempt_min_remaining_tokens=rng.choice([0, 4]), mixed_batching=rng.choice([False, True]),
     )
     seqs = []
     pending = [(rng.randrange(60), make_seq(rng.randint(1, 30), start=rng.randrange(5) * 40,
@@ -572,3 +605,14 @@ def test_random_workload_drains_cleanly(policy, mode, seed):
     for seq in seqs:
         assert seq.is_finished and 1 <= seq.num_completion_tokens <= seq.max_tokens
     assert_all_released(sched)
+
+
+@pytest.mark.parametrize("policy", ["fcfs", "priority", "mlfq"])
+@pytest.mark.parametrize("seed", range(100, 140))
+def test_random_mixed_workload_drains_cleanly(policy, seed, monkeypatch):
+    # seed 128 with fcfs/recompute deadlocked before a decode-time victim was queued behind a
+    # chunked prefill in progress instead of in front of it
+    make = make_scheduler
+    monkeypatch.setitem(globals(), "make_scheduler", lambda **kw: make(**{**kw, "mixed_batching": True}))
+    for mode in ["recompute", "swap", "auto"]:
+        test_random_workload_drains_cleanly(policy, mode, seed)

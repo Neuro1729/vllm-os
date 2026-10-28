@@ -54,6 +54,7 @@ def parse_args():
     p.add_argument("--pause-victims", action="store_true")
     p.add_argument("--mlfq-preempt-max-level", type=int, default=-1)
     p.add_argument("--preempt-min-remaining-tokens", type=int, default=0)
+    p.add_argument("--mixed-batching", action="store_true")
     return p.parse_args()
 
 
@@ -117,7 +118,7 @@ def main():
         mlfq_priority_scale=args.mlfq_priority_scale, preempt_after_steps=args.preempt_after_steps,
         mlfq_max_levels={int(k): int(v) for k, v in (x.split(":") for x in args.mlfq_max_levels.split(",") if x)},
         pause_victims=args.pause_victims, mlfq_preempt_max_level=args.mlfq_preempt_max_level,
-        preempt_min_remaining_tokens=args.preempt_min_remaining_tokens,
+        preempt_min_remaining_tokens=args.preempt_min_remaining_tokens, mixed_batching=args.mixed_batching,
     )
     llm.generate([[1, 2, 3]], SamplingParams(max_tokens=8), use_tqdm=False)    # warm up
     sched = llm.scheduler

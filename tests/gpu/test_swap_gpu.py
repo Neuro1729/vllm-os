@@ -81,3 +81,33 @@ def test_preempted_request_matches_undisturbed_run(llm, mode):
         # Re-prefilling rebuilds the KV with the prefill kernel instead of token-by-token decode,
         # so bf16 rounding differs slightly and greedy output may drift many tokens later.
         assert low.completion_token_ids[:20] == ref[:20] and len(low.completion_token_ids) == n
+
+
+def test_mixed_batch_matches_separate_runs(llm):
+    """A prefill that shares its step with another request's decode yields the same tokens."""
+    prompts = ["Explain how a multi-level feedback queue scheduler works, step by step.",
+               "Write a short poem about GPUs."]
+    n = 32
+    refs = [llm.generate([p], SamplingParams(temperature=GREEDY, max_tokens=n), use_tqdm=False)[0]["token_ids"]
+            for p in prompts]
+    sched = llm.scheduler
+    sched.mixed_batching, max_num_seqs = True, sched.max_num_seqs
+    sched.max_num_seqs = 2
+    try:
+        first = llm.add_request(prompts[0], SamplingParams(temperature=GREEDY, max_tokens=n))
+        for _ in range(5):
+            llm.step()
+        second = llm.add_request(prompts[1], SamplingParams(temperature=GREEDY, max_tokens=n))
+        seqs, is_prefill = sched.schedule()
+        assert is_prefill and first in seqs and second in seqs    # one mixed step
+        token_ids = llm.model_runner.call("run", seqs, is_prefill, *sched.take_swap_ops())
+        sched.postprocess(seqs, token_ids, is_prefill)
+        while not llm.is_finished():
+            llm.step()
+    finally:
+        sched.mixed_batching, sched.max_num_seqs = False, max_num_seqs
+    # The varlen kernel and the decode kernel round bf16 differently, so greedy output can
+    # drift late; the first tokens, including those decoded in the mixed step, must match.
+    for seq, ref in zip((first, second), refs):
+        assert len(seq.completion_token_ids) == n
+        assert seq.completion_token_ids[:16] == ref[:16]

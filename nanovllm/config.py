@@ -38,6 +38,9 @@ class Config:
     swap_space: float = 0    # GiB of pinned host memory for swapped-out KV blocks
     swap_min_tokens: int = 0    # auto mode: swap only sequences with at least this many cached tokens
     num_cpu_blocks: int = 0
+    # vLLM-style mixed batches: running sequences decode in the same step as (chunks of)
+    # new prefills, instead of every prefill step stalling the whole batch
+    mixed_batching: bool = False
 
     def __post_init__(self):
         assert os.path.isdir(self.model)

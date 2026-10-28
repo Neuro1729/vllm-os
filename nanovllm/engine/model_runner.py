@@ -163,7 +163,10 @@ class ModelRunner:
             seqlen_q = seq.num_scheduled_tokens
             end = start + seqlen_q
             seqlen_k = end
-            input_ids.extend(seq[start:end])
+            if seqlen_q == 1 and end == len(seq):    # decoding in a mixed batch: workers only get last_token
+                input_ids.append(seq.last_token)
+            else:
+                input_ids.extend(seq[start:end])
             positions.extend(range(start, end))
             cu_seqlens_q.append(cu_seqlens_q[-1] + seqlen_q)
             cu_seqlens_k.append(cu_seqlens_k[-1] + seqlen_k)

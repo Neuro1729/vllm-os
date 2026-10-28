@@ -53,6 +53,7 @@ class Scheduler:
         self.pause_victims = getattr(config, "pause_victims", False)
         self.mlfq_preempt_max_level = getattr(config, "mlfq_preempt_max_level", -1)
         self.preempt_min_remaining_tokens = getattr(config, "preempt_min_remaining_tokens", 0)
+        self.mixed_batching = getattr(config, "mixed_batching", False)
         self.block_manager = BlockManager(config.num_kvcache_blocks, config.kvcache_block_size,
                                           getattr(config, "num_cpu_blocks", 0))
         self.waiting: deque[Sequence] = deque()
@@ -116,7 +117,8 @@ class Scheduler:
                 self.waiting = deque(sorted(self.waiting, key=self._waiting_key))
                 self.waiting_sorted = True
         scheduled_seqs = []
-        num_batched_tokens = 0
+        # mixed batching: every running sequence decodes one token this step, keep room for them
+        num_batched_tokens = len(self.running) if self.mixed_batching else 0
 
         # prefill
         while self.waiting and len(scheduled_seqs) < self.max_num_seqs:
@@ -147,7 +149,9 @@ class Scheduler:
                 num_tokens = seq.num_tokens - num_cached_blocks * self.block_size
             else:
                 num_tokens = seq.num_tokens - seq.num_cached_tokens
-            if remaining < num_tokens and scheduled_seqs:  # only allow chunked prefill for the first seq
+            # only allow chunked prefill for the first seq; with mixed batching the chunked one is the
+            # last admitted this step and so becomes the head of the queue, as the code above expects
+            if remaining < num_tokens and scheduled_seqs and not self.mixed_batching:
                 break
             if not seq.block_table:
                 self.block_manager.allocate(seq, num_cached_blocks)
@@ -159,13 +163,19 @@ class Scheduler:
                 self._start_running(seq)
             scheduled_seqs.append(seq)
 
-        if scheduled_seqs:
+        if scheduled_seqs and not self.mixed_batching:
             return scheduled_seqs, True
+        prefill_seqs = scheduled_seqs
 
         # decode
         if self.preemptive:
             self.running = deque(sorted(self.running, key=lambda s: (self.rank(s), s.seq_id)))
-        while self.running and len(scheduled_seqs) < self.max_num_seqs:
+        # sequences admitted by this step's prefill are in running already but have nothing to decode yet
+        in_prefill = set(map(id, prefill_seqs))
+        just_admitted = [s for s in self.running if id(s) in in_prefill]
+        self.running = deque(s for s in self.running if id(s) not in in_prefill)
+        decode_seqs = []
+        while self.running and len(prefill_seqs) + len(decode_seqs) < self.max_num_seqs:
             seq = self.running.popleft()
             while not self.block_manager.can_append(seq):
                 if self._reclaim_paused(1, seq):
@@ -182,10 +192,11 @@ class Scheduler:
                 seq.is_prefill = False
                 seq.resident_steps += 1
                 self.block_manager.may_append(seq)
-                scheduled_seqs.append(seq)
-        assert scheduled_seqs
-        self.running.extendleft(reversed(scheduled_seqs))
-        return scheduled_seqs, False
+                decode_seqs.append(seq)
+        assert prefill_seqs or decode_seqs
+        self.running.extendleft(reversed(decode_seqs))
+        self.running.extend(just_admitted)
+        return prefill_seqs + decode_seqs, bool(prefill_seqs)
 
     def _waiting_key(self, seq: Sequence):
         # A chunked prefill in progress already holds its blocks; it must stay at the head
@@ -359,6 +370,10 @@ class Scheduler:
         if self.preemptive:
             self.waiting.append(seq)    # re-sorted next step; the head may be the seq being admitted
             self.waiting_sorted = False
+        elif self.waiting and self.waiting[0].block_table and self.waiting[0].status == SequenceStatus.WAITING:
+            # mixed batching decodes while a chunked prefill is in progress; that one holds all its
+            # blocks and must stay at the head, or the two can wait for each other forever
+            self.waiting.insert(1, seq)
         else:
             self.waiting.appendleft(seq)
 
