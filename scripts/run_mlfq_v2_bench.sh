@@ -30,6 +30,7 @@ run() {    # [--tree DIR] label args...: DIR's nanovllm is imported (python -m p
     local tree=$HERE
     [ "$1" == --tree ] && { tree=$2; shift 2; }
     local label=$1; shift
+    if grep -qF "\"label\": \"$label\"" "$OUT" 2>/dev/null; then echo "--- $label already done"; return; fi
     echo "=== $label"
     (cd "$tree" && exec timeout --signal=TERM --kill-after=60 "$RUN_TIMEOUT" \
         "$PYTHON" -m benchmarks.priority_bench --label "$label" --out "$HERE/$OUT" --duration "$DURATION" "$@") &

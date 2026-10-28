@@ -16,8 +16,8 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
 STAGES = ["fcfs", "mlfq-v1", "+low-overhead", "+pause", "+short-only", "+no-wait", "mlfq-v2"]
-STAGE_LABELS = ["fcfs", "MLFQ v1", "+ low-overhead\nqueue", "+ pause\nvictims", "+ only short\nnewcomers evict",
-                "+ no wait\nbefore evicting", "+ spare nearly\ndone = MLFQ v2"]
+STAGE_LABELS = ["fcfs", "MLFQ v1", "+ low\noverhead", "+ pause\nvictims", "+ short\nevict only",
+                "+ no\nwait", "+ spare done\n= MLFQ v2"]
 SCENARIOS = {    # name -> (label, color, marker); reference palette slots 1-5, fixed order
     "batch-cap": ("batch full, chat has priority", "#2a78d6", "o"),
     "no-priority": ("batch full, no priorities", "#eb6834", "s"),
@@ -61,18 +61,31 @@ def style(ax, title, unit):
     ax.set_xlim(-0.3, len(STAGES) - 0.3)
 
 
-def line(ax, runs, scenario, get, label_end=True):
+def label_ends(ax, ends, fmt):
+    """Value at each line's end, unless two would overlap (the legend names the lines then)."""
+    lo, hi = ax.get_ylim()
+    log = ax.get_yscale() == "log"
+    pos = sorted(np.log10(v) if log else v for _, v in ends)
+    span = (np.log10(hi) - np.log10(lo)) if log else hi - lo
+    if any(b - a < 0.06 * span for a, b in zip(pos, pos[1:])):
+        return
+    for x, v in ends:
+        ax.annotate(fmt(v), (x, v), xytext=(8, 0), textcoords="offset points", va="center", fontsize=8, color=INK)
+
+
+def fmt_value(v):
+    return f"{v:.0f}" if v >= 10 or v == 0 else f"{v:.2f}"
+
+
+def line(ax, runs, scenario, get):
     xs, mean, lo, hi = series(runs, scenario, get)
     if not len(xs):
-        return
+        return None
     name, color, marker = SCENARIOS[scenario]
     ax.fill_between(xs, lo, hi, color=color, alpha=0.12, lw=0)
     ax.plot(xs, mean, color=color, lw=2, solid_joinstyle="round", solid_capstyle="round",
             marker=marker, ms=8, mec=SURFACE, mew=2, label=name, zorder=3)
-    if label_end:
-        v = mean[-1]
-        ax.annotate(f"{v:.0f}" if v >= 10 else f"{v:.2f}", (xs[-1], v), xytext=(8, 0),
-                    textcoords="offset points", va="center", fontsize=8, color=INK)
+    return xs[-1], mean[-1]
 
 
 def plot_ablation(runs, out_dir):
@@ -89,11 +102,11 @@ def plot_ablation(runs, out_dir):
     fig, axes = plt.subplots(2, 3, figsize=(17, 9), facecolor=SURFACE)
     for ax, (title, unit, get, log) in zip(axes.flat, metrics):
         ax.set_facecolor(SURFACE)
-        for s in scenarios:
-            line(ax, runs, s, get)
+        ends = [e for e in (line(ax, runs, s, get) for s in scenarios) if e]
         if log:
             ax.set_yscale("log")
         style(ax, title, unit)
+        label_ends(ax, ends, fmt_value)
     handles, labels = axes.flat[0].get_legend_handles_labels()
     fig.legend(handles, labels, loc="upper right", ncol=3, frameon=False, fontsize=9, labelcolor=INK)
     fig.suptitle("MLFQ v2: each improvement added on top of the previous one (mean of seeds, band = min-max)",
@@ -121,6 +134,7 @@ def plot_cost(runs, out_dir):
     for ax, (title, unit, f) in zip(axes, metrics):
         ax.set_facecolor(SURFACE)
         ax.axhline(0, color=INK_2, lw=1)
+        ends = []
         for scenario, (name, color, marker) in SCENARIOS.items():
             xs, mean, lo, hi = [], [], [], []
             for i, stage in enumerate(STAGES[1:], start=1):
@@ -131,15 +145,16 @@ def plot_cost(runs, out_dir):
                 continue
             ax.fill_between(xs, lo, hi, color=color, alpha=0.12, lw=0)
             ax.plot(xs, mean, color=color, lw=2, marker=marker, ms=8, mec=SURFACE, mew=2, label=name, zorder=3)
-            ax.annotate(f"{mean[-1]:+.1f}%", (xs[-1], mean[-1]), xytext=(8, 0), textcoords="offset points",
-                        va="center", fontsize=8, color=INK)
+            ends.append((xs[-1], mean[-1]))
         style(ax, title, unit)
         ax.set_xlim(0.7, len(STAGES) - 0.3)
+        label_ends(ax, ends, lambda v: f"{v:+.1f}%")
     handles, labels = axes[0].get_legend_handles_labels()
-    fig.legend(handles, labels, loc="upper right", ncol=5, frameon=False, fontsize=9, labelcolor=INK)
+    fig.legend(handles, labels, loc="upper left", bbox_to_anchor=(0.005, 0.93), ncol=5, frameon=False,
+               fontsize=9, labelcolor=INK)
     fig.suptitle("Damage to the rest of the system (normal load and only-short skip the middle stages)",
                  x=0.01, ha="left", fontsize=12, color=INK)
-    fig.tight_layout(rect=(0, 0, 1, 0.92))
+    fig.tight_layout(rect=(0, 0, 1, 0.86))
     path = os.path.join(out_dir, "ablation_cost.png")
     fig.savefig(path, dpi=130, facecolor=SURFACE)
     plt.close(fig)
