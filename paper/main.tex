@@ -4,7 +4,7 @@
 \usepackage[T1]{fontenc}
 \usepackage{lmodern}
 \usepackage{microtype}
-\usepackage{amsmath,amssymb}
+\usepackage{amsmath}
 \usepackage{graphicx}
 \usepackage{booktabs}
 \usepackage{multirow}
@@ -12,200 +12,100 @@
 \usepackage{caption}
 \usepackage{subcaption}
 \usepackage{enumitem}
-\usepackage{algorithm}
-\usepackage{algpseudocode}
 \usepackage{pifont}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric}
 \usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
 
+\setlist{leftmargin=*,itemsep=2pt,topsep=3pt}
 \newcommand{\fcfs}{\textsc{fcfs}}
-\newcommand{\vone}{MLFQ\,v1}
 \newcommand{\vtwo}{MLFQ\,v2}
 \newcommand{\maxseqs}{\texttt{max\_num\_seqs}}
-\newcommand{\best}[1]{\textbf{#1}}
 
 \title{Preempt Only When the Batch Is Full:\\
-Saturation-Triggered MLFQ Scheduling for Continuous-Batching LLM Servers}
-
+Saturation-Triggered MLFQ Scheduling for LLM Serving}
 \author{Aaryan Pathak (124cs0065) \and Aniket Ware (524cs0012)}
-
 \date{October 2026\\[4pt]
-\small Code: \url{https://github.com/Neuro1729/vllm-os} (branches \texttt{mlfq-v2-pause}, \texttt{mixed-batching})}
+\small Code: \url{https://github.com/Neuro1729/vllm-os} (branch \texttt{mixed-batching})}
 
 \begin{document}
 \maketitle
 
 \begin{abstract}
-Continuous-batching LLM servers such as vLLM admit requests first-come-first-served until the
-running batch reaches \maxseqs{}. From then on a newly arrived request waits until some running
-request finishes, whatever its priority: vLLM issue \#40004 reports interactive requests waiting
-6.8\,s behind background traffic with zero preemptions. Prior preemptive schedulers for LLM
-serving, most prominently FastServe's skip-join multi-level feedback queue (MLFQ), re-rank and
-preempt jobs at every iteration and were designed against run-to-completion baselines; they pay
-for it with up to $7\times$ the KV-cache footprint of \fcfs{} and need proactive swapping to host
-memory. We argue that in a continuous-batching engine almost all of that preemption is
-unnecessary. We present a \emph{saturation-triggered} MLFQ that behaves exactly like continuous
-batching while the batch has free slots and preempts only when it is full. Requests are ranked by
-their current size (prompt plus generated tokens), so no client priorities or output-length
-predictions are needed. Only fresh short requests may evict a running request, the victim is
-\emph{paused} with its KV cache left on the GPU, and requests about to finish are spared. Combined
-with vLLM-style mixed prefill/decode batching, our scheduler in a nano-vllm based engine cuts chat
-time-to-first-token p99 from 675\,ms to 37\,ms (18$\times$) with a full batch, matches the
-throughput of the original \fcfs{} scheduler to within 0.1\%, makes long agent turns 3--5\% faster,
-and copies no KV cache at all. Without saturation it never preempts. The whole change is about 485
-lines over nano-vllm, opt-in, and leaves the default scheduler's decisions unchanged.
+Continuous-batching LLM servers such as vLLM admit requests first-come-first-served until
+\maxseqs{} requests are running; after that, a new request waits for a running one to finish,
+whatever its priority (vLLM issue \#40004). Preemptive MLFQ schedulers such as FastServe fix
+head-of-line blocking by re-ranking and preempting at every iteration, at the price of a much larger
+KV-cache footprint and host-memory swapping. We observe that in a continuous-batching engine
+preemption is only needed when the batch is full. Our scheduler behaves exactly like continuous
+batching below saturation. Once the batch is full, it lets only fresh short requests evict a running
+request, ranks requests by size so that no priorities are needed, and \emph{pauses} the victim with
+its KV cache kept on the GPU. With vLLM-style mixed prefill/decode batching, on a nano-vllm based
+engine, it cuts chat time-to-first-token p99 from 675\,ms to 37\,ms with a full batch, matches the
+original scheduler's throughput within 0.1\%, and copies no KV cache.
 \end{abstract}
 
 %=====================================================================
 \section{Introduction}
 %=====================================================================
 
-Large language model (LLM) servers increasingly host mixed workloads on the same GPUs:
-latency-sensitive interactive requests (chat turns, voice assistants) next to long, throughput-bound
-background work such as coding agents that run many multi-thousand-token turns. Continuous
-(iteration-level) batching~\cite{orca} and paged KV-cache management~\cite{vllm} made such servers
-efficient, and both are the default in vLLM. Their admission policy, however, is first-come
-first-served (\fcfs{}) with a hard cap \maxseqs{} on the number of concurrently running requests.
+LLM servers increasingly mix latency-sensitive requests (chat, voice) with long background work
+(coding agents). vLLM~\cite{vllm} serves them with continuous batching~\cite{orca}: requests join and
+leave the batch at every iteration, up to \maxseqs{} at a time, in arrival order. When all
+\maxseqs{} slots are held by long agent turns, a short interactive request has to wait for one of
+them to finish, which can take seconds. Priority scheduling does not help, because the request is
+already first in line; there is no free slot. This is vLLM issue \#40004~\cite{issue40004}.
 
-That cap creates a failure mode that is easy to hit in production and hard to fix with knobs. Once
-\maxseqs{} requests are running, the scheduler stops admitting work. If the running requests are
-long agent turns, a short interactive request waits for one of them to finish, which can take
-seconds to minutes. vLLM's priority scheduling does not help: it reorders the waiting queue, but
-the important request is already first in line; there is simply no slot. This is vLLM issue
-\#40004~\cite{issue40004}, opened in April 2026, labelled \emph{help wanted}, and still open at the
-time of writing with five fix pull requests in review and none merged
-(\S\ref{sec:history}).
-
-The classic answer to head-of-line blocking is a preemptive multi-level feedback queue. FastServe
-introduced a skip-join MLFQ for LLM inference~\cite{fastserve,fastserve-nsdi} and reports large
-gains over vLLM. But FastServe preempts at every iteration: each step it picks the
-\texttt{MaxBatchSize} highest-priority jobs out of all jobs, demotes jobs by elapsed time quantum,
-and consequently must keep the KV caches of many preempted jobs alive. Its own measurements show
-up to $7\times$ the KV memory of \fcfs{}, which it handles with proactive swapping to host memory
-and reserved KV slots. That machinery was motivated by run-to-completion serving systems. In an
-engine that already has continuous batching, the batch is usually not full, and when it is not,
-there is nothing to preempt \emph{for}.
-
-\paragraph{Our approach.} We keep continuous batching exactly as it is and add preemption only for
-the saturated case. Concretely:
-\begin{itemize}[leftmargin=*,itemsep=2pt]
-  \item \textbf{Saturation trigger.} While fewer than \maxseqs{} requests run, nothing is ever
-    preempted; requests are admitted best rank first, which with equal ranks is plain \fcfs{}.
-  \item \textbf{Size-based MLFQ levels.} A request's level is a function of its current size
-    (prompt plus generated tokens), with slow aging for waiting requests. No priorities, no length
-    predictor, no profiler are required; client priorities, if given, only break ties.
-  \item \textbf{Cheap, targeted preemption.} Only fresh requests in the top level may evict a
-    runner. The victim is paused with its KV blocks left on the GPU, and its blocks are reclaimed
-    lazily only if something actually needs them. Runners close to their end are spared.
-  \item \textbf{Mixed prefill/decode batching} as in vLLM V1, so that admitting a request does not
-    stall the whole batch for a prefill step.
+\paragraph{Key idea.} Continuous batching already removes head-of-line blocking \emph{as long as the
+batch has room}. We therefore keep it unchanged and add preemption only for the saturated case:
+\begin{itemize}
+  \item below saturation, nothing is ever preempted;
+  \item at saturation, a fresh short request may evict the worst-ranked running request, where rank
+    is the request's size (prompt plus generated tokens);
+  \item the victim is paused with its KV cache left on the GPU instead of being swapped or recomputed;
+  \item prefill and decode share each step (mixed batching), so admissions do not stall the batch.
 \end{itemize}
 
-\paragraph{Contributions.}
-\begin{enumerate}[leftmargin=*,itemsep=2pt]
-  \item An analysis of why vLLM's \maxseqs{} admission path blocks interactive requests, and why
-    existing remedies (priority scheduling, FastServe-style MLFQ) either do not apply or cost more
-    than necessary in a continuous-batching engine (\S\ref{sec:problem}, \S\ref{sec:related}).
-  \item The design of a saturation-triggered MLFQ with pause-instead-of-swap preemption and
-    preemption limits that remove agent-on-agent churn (\S\ref{sec:design}).
-  \item A step-by-step ablation over three seeds and five scenarios showing what each design
-    choice buys and costs, and an evaluation with mixed batching that reaches the original
-    scheduler's throughput (\S\ref{sec:eval}).
-\end{enumerate}
-
-\paragraph{Scope.} Our prototype is built on nano-vllm~\cite{nanovllm}, a compact re-implementation
-of vLLM's core (paged attention, prefix caching, CUDA graphs, continuous batching), and evaluated
-with Qwen3-0.6B on one NVIDIA H100 PCIe. We discuss what transfers to vLLM in \S\ref{sec:discussion}.
+\paragraph{Results.} On Qwen3-0.6B and one H100, with a full batch our scheduler matches strict
+priority scheduling on chat latency even when no priorities are set, at the original scheduler's
+throughput, and it never preempts when the batch is not full (\S\ref{sec:eval}).
 
 %=====================================================================
-\section{Background}
-\label{sec:background}
-%=====================================================================
-
-\paragraph{Continuous batching and paged KV cache.} Orca~\cite{orca} schedules at iteration
-granularity: after every forward pass finished requests leave the batch and waiting requests may
-join. vLLM~\cite{vllm} stores the KV cache in fixed-size blocks (PagedAttention), so the batch size is
-bounded by KV memory and by \maxseqs{}, not by the longest sequence.
-
-\paragraph{Chunked prefill and mixed batches.} Sarathi-Serve~\cite{sarathi} splits long prefills into
-chunks and runs them in the same step as ongoing decodes. vLLM V1 enables chunked prefill by
-default: decode requests are batched first and prefills fill the remaining
-\texttt{max\_num\_batched\_tokens} budget, chunked if they do not fit~\cite{vllm-opt}. nano-vllm, our
-base, runs every step either as a prefill or as a decode; we add mixed batching in \S\ref{sec:mixed}.
-
-\paragraph{Preemption in vLLM.} vLLM preempts a running request when the KV cache runs out during
-decode. In V1 the default preemption mode is recompute: the victim's KV blocks are dropped and
-rebuilt by a new prefill when space returns~\cite{vllm-opt}. vLLM also offers a \emph{priority}
-scheduling policy (\texttt{--scheduling-policy priority}), in which a lower value means more
-important~\cite{vllm-priority-forum}; it orders the waiting queue and chooses lower-priority victims
-under KV pressure.
-
-\paragraph{MLFQ.} A multi-level feedback queue keeps several priority levels; jobs start high and are
-demoted as they consume service, which approximates shortest-remaining-time-first without knowing
-job sizes~\cite{fastserve-nsdi}. FastServe's skip-join variant places a new job directly in the
-level whose quantum covers its predicted prefill time~\cite{fastserve-nsdi}.
-
-%=====================================================================
-\section{The Problem: A Full Batch Blocks Everything}
-\label{sec:problem}
-%=====================================================================
-
-\subsection{vLLM issue \#40004}
-
-Issue \#40004~\cite{issue40004} (``Priority scheduling supports preemption of requests in the running
-queue by requests in the waiting queue'') describes the gap precisely: priority scheduling evicts
-low-priority running requests only when resources are insufficient, not when the running queue is
-full. Contributors on the thread located the cause in the V1 scheduler: the waiting-request loop
-breaks out as soon as \texttt{len(running) == max\_num\_running\_reqs}, regardless of whether a
-lower-priority running request could be evicted~\cite{issue40004}. The KV-pressure path already
-preempts; the \maxseqs{} path does not.
-
-The thread contains production reports. One user with \texttt{--max-num-seqs 8} and background
-traffic at priority 10 measured a 6.8\,s wait for an interactive priority-0 request while
-\texttt{num\_preemptions\_total} stayed at zero, and works around it by capping background traffic at
-6 of the 8 slots. Another reports, on vLLM 0.32.0, a voice-to-voice p95 of 10.1\,s for voice calls
-sharing the server with coding agents, against about 1.8\,s for calls alone~\cite{issue40004}.
-
-\subsection{Why priorities alone are not enough}
-
-Even a correct priority fix (\S\ref{sec:history}) has two limits. First, it needs every client to
-tag its requests, and a mis-tagged or untagged request falls back to \fcfs{}. In our
-\emph{no-priority} scenario, where chat and agents carry the same priority, priority scheduling
-behaves exactly like \fcfs{} (chat TTFT p99 665\,ms vs.\ 562\,ms, Table~\ref{tab:main}).
-Second, preemption in vLLM V1 recomputes the victim by default; evicting a 2\,000-token agent
-context to admit a 60-token chat throws away work, and a naive policy can evict repeatedly.
-Reviewers of the fix PRs raised exactly these concerns: equal priorities ping-ponging, victims
-evicted for a newcomer that still cannot be admitted, and interactions with LoRA slot accounting
-and same-step scheduling~\cite{issue40004,pr54530}.
-
-%=====================================================================
-\section{Related Work and Why the Problem Stayed Open}
+\section{The Problem and Prior Work}
 \label{sec:related}
 %=====================================================================
 
-\subsection{FastServe: preempt at every iteration}
+\paragraph{vLLM issue \#40004.} In the V1 scheduler the waiting-request loop stops as soon as
+\texttt{len(running) == max\_num\_running\_reqs}; preemption exists only for KV-cache
+pressure~\cite{issue40004}. Users report a 6.8\,s wait for a priority-0 request with
+\texttt{--max-num-seqs 8} and zero preemptions, and a voice-call p95 of 10.1\,s next to coding agents
+against 1.8\,s alone~\cite{issue40004}. Several fix PRs (\#40087, \#45558, \#45561, \#54530,
+\#63350/\#63351) add strict-priority preemption at \maxseqs{} or under KV pressure. As of October 2026
+none is merged: \#40087 is marked stale and \#54530 needs a rebase and has no approving
+review~\cite{pr40087,pr54530}. Review raised ping-pong between equal priorities, victims evicted for a
+newcomer that still cannot be admitted, and LoRA accounting~\cite{issue40004,pr54530}. All of them
+also require clients to set priorities.
 
-FastServe~\cite{fastserve,fastserve-nsdi} is the closest prior work. Its scheduler (Algorithm~1 in the
-NSDI'26 version) runs at every iteration: newly arrived jobs skip-join the queue whose quantum covers
-their profiled prefill time; every job that exhausts its time quantum is demoted; starved jobs are
-promoted back to the top; then the scheduler takes jobs in priority order until
-\texttt{MaxBatchSize} are selected. Preemption is therefore implicit and continuous: whenever more
-jobs exist than fit in the batch, the lower-ranked ones are paused at token granularity, and the
-ranking itself changes as jobs consume quanta.
+\paragraph{FastServe.} FastServe~\cite{fastserve,fastserve-nsdi} introduced a skip-join MLFQ for LLM
+inference (Figure~\ref{fig:fastserve}): a job joins the queue whose quantum covers its profiled
+prefill time, is demoted when it uses up its quantum, and is promoted when starved. Every iteration
+the scheduler runs the top \texttt{MaxBatchSize} jobs and preempts the rest. Keeping all preempted
+jobs' caches costs up to $7\times$ the KV memory of \fcfs{}, so FastServe adds proactive KV swapping
+to host memory and reserved KV slots~\cite{fastserve-nsdi}. It was motivated by serving systems
+that ``use run-to-completion processing''~\cite{fastserve-nsdi}. In an engine that already has
+continuous batching, a request that is not in a full batch blocks nobody, so most of this preemption
+buys nothing.
 
-This design has costs that FastServe itself measures and engineers around. The paper reports that
-the peak KV-cache memory of skip-join MLFQ can be $7\times$ that of \fcfs{} even for a small model,
-because the caches of all preempted jobs must be retained; it therefore adds a proactive KV-cache
-manager that swaps caches between GPU and host memory ordered by an estimated next scheduling time,
-and reserves idle KV slots for bursts of new jobs~\cite{fastserve-nsdi}. Its motivation is that
-``existing LLM serving systems use run-to-completion processing''~\cite{fastserve-nsdi}.
+\paragraph{Other attempts.} Fu et al.\ implemented an MLFQ ``in 1.2k lines of Python code'' on
+vLLM v0.4.1 as a research baseline and note that it ``introduces substantial
+complexity''~\cite{ltr}; it was not upstreamed. An open SGLang PR adds a skip-join MLFQ that avoids
+preemption altogether~\cite{sglang45688}. We found no MLFQ PR, issue or RFC in vLLM itself.
 
-Our position is that once continuous batching exists, two of FastServe's premises weaken. A request
-that is not in a full batch is not blocked by anyone, so preempting it gains nothing; and a request
-that finishes leaves the batch immediately, so the head-of-line blocking that remains is precisely
-the saturated case. Figure~\ref{fig:fastserve-vs-ours} illustrates the difference and
-Table~\ref{tab:compare} summarises it.
+\paragraph{Why it stayed open.} (1) Research MLFQs replace the scheduler instead of being a small
+change to it. (2) Preemption is costly by default: vLLM V1 recomputes victims~\cite{vllm-opt}, and
+frequent preemption can lose more throughput than it saves latency. (3) Priority-based fixes only
+help clients that tag requests. (4) The problem appears only when long requests fill \maxseqs{},
+which common benchmarks rarely do.
 
 \begin{figure}[t]
 \centering
@@ -217,34 +117,27 @@ Table~\ref{tab:compare} summarises it.
   job/.style={draw, fill=#1, minimum width=0.42cm, minimum height=0.36cm, inner sep=0pt},
   ar/.style={-{Stealth[length=2mm]}, thick},
   lb/.style={font=\scriptsize, align=center}]
-% queues
 \foreach \i/\n in {0/1,1/2,2/3,3/n} {
   \node[q] (Q\n) at (0,-0.75*\i) {};
   \node[font=\small, anchor=east] at (Q\n.west) {$Q_{\n}$\,};
 }
 \node[font=\scriptsize, anchor=south] at (Q1.north) {higher priority, shorter quantum};
-% jobs in queues
 \node[job=orange!40] at ([xshift=-1.4cm]Q1.center) {};
 \node[job=orange!40] at ([xshift=-0.9cm]Q1.center) {};
 \node[job=blue!30]   at ([xshift=-1.4cm]Q2.center) {};
 \node[job=blue!30]   at ([xshift=-1.4cm]Q3.center) {};
 \node[job=blue!30]   at ([xshift=-0.9cm]Q3.center) {};
 \node[job=blue!30]   at ([xshift=-1.4cm]Qn.center) {};
-% skip-join arrival
 \node[lb, anchor=east] (arr) at (-2.6,-1.5) {new job\\(prefill time\\$\le q_i$)};
 \draw[ar] (arr.east) -- node[lb, above, sloped] {\ding{172}} ([xshift=-0.3cm]Q3.west);
-% demotion
 \draw[ar] ([xshift=0.25cm]Q1.east) -- node[lb, right] {\ding{173} quantum\\used up:\\demote} ([xshift=0.25cm]Qn.east);
-% promotion
 \draw[ar, dashed] ([xshift=-1.0cm, yshift=-0.05cm]Qn.south) to[bend left=50] node[lb, below, pos=0.25] {\ding{174} starved: promote to $Q_1$} ([xshift=-2.3cm]Q1.west);
-% batch selection
 \node[draw, rounded corners, fill=green!12, lb, minimum width=3.6cm] (batch) at (0,-4.2) {every iteration: run the top\\\texttt{MaxBatchSize} jobs of $Q_1 \ldots Q_n$};
 \draw[ar] (Qn.south) -- (batch.north);
 \node[draw, rounded corners, fill=red!10, lb, minimum width=3.6cm] (host) at (0,-5.5) {all other jobs preempted;\\KV proactively swapped to host\\(peak KV up to $7\times$ \textsc{fcfs})};
 \draw[ar] (batch.south) -- (host.north);
 \end{tikzpicture}}
-\caption{FastServe's skip-join MLFQ, adapted from Wu et al.~\cite{fastserve-nsdi} (Fig.~6 and
-Algorithm~1). Ranking, demotion and preemption happen at every iteration.}
+\caption{FastServe's skip-join MLFQ, adapted from~\cite{fastserve-nsdi} (Fig.~6, Alg.~1).}
 \label{fig:fastserve}
 \end{subfigure}\hfill
 \begin{subfigure}[t]{0.49\linewidth}
@@ -269,505 +162,176 @@ Algorithm~1). Ranking, demotion and preemption happen at every iteration.}
 \draw[ar] (fresh) -- node[lb, right] {yes} (pause);
 \draw[ar, dashed] (pause) -- (lazy);
 \end{tikzpicture}}
-\caption{Our saturation-triggered MLFQ. Below saturation it is plain continuous batching; at
-saturation only a fresh short request may pause one runner, without copying its KV cache.}
+\caption{Our saturation-triggered MLFQ.}
 \label{fig:ours}
 \end{subfigure}
-\caption{Where preemption happens. FastServe~(a) re-ranks and preempts at every iteration and
-keeps all preempted jobs' KV caches, offloading them to host memory. Our scheduler~(b) leaves
-continuous batching untouched until the batch is full and then preempts only for fresh short
-requests, by pausing.}
+\caption{Where preemption happens. FastServe re-ranks and preempts at every iteration and offloads
+the caches of preempted jobs to host memory. We leave continuous batching untouched until the batch
+is full, then let only a fresh short request pause one runner, without copying its KV cache.}
 \label{fig:fastserve-vs-ours}
 \end{figure}
-
-\begin{table}[t]
-\centering
-\small
-\caption{FastServe's skip-join MLFQ vs.\ our saturation-triggered MLFQ.}
-\label{tab:compare}
-\begin{tabular}{p{3.6cm}p{5.2cm}p{5.6cm}}
-\toprule
- & FastServe~\cite{fastserve-nsdi} & This work \\
-\midrule
-When preemption happens & every iteration, whenever more jobs exist than \texttt{MaxBatchSize} & only when \maxseqs{} requests run and a fresh short request waits \\
-Priority signal & profiled prefill time, then elapsed time quanta & current size in tokens (prompt + generated) \\
-Extra inputs & offline latency profile, quantum and starvation parameters & none (levels in tokens, aging in steps) \\
-Who may preempt & any higher-ranked job & only fresh requests in the top level \\
-Victim's KV cache & retained; proactively swapped to host & paused on GPU; swapped/dropped lazily only if blocks are needed \\
-Behaviour below saturation & still ranks and demotes every iteration & identical to continuous batching \\
-Integration & standalone serving system & $\approx$485 lines over nano-vllm, opt-in \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Other MLFQ attempts on vLLM-like engines}
-
-Fu et al.~\cite{ltr} implemented an MLFQ baseline ``in 1.2k lines of Python code'' on vLLM v0.4.1,
-using vLLM's chunked prefill to run prefill and decode in the same step as FastServe describes. They
-note that MLFQ ``introduces substantial complexity'' and that it ``must run all arriving requests
-before they enter the next priority level'', which keeps head-of-line blocking; they instead propose
-a learned ranking of output lengths. Their MLFQ lives in a research fork and was not upstreamed. In
-SGLang, an open pull request adds a skip-join MLFQ policy (\texttt{sj-mlfq}) with a prefill gate; it
-explicitly avoids preemption (``relies on priority retraction, not preemption'') and had no
-maintainer response at the time of writing~\cite{sglang45688}. We found no MLFQ pull request, issue
-or RFC in the vLLM repository itself. A community thread on the vLLM forum asking whether \fcfs{}
-holds vLLM back in production received no maintainer reply~\cite{vllm-fcfs-forum}.
-
-\subsection{The \#40004 pull-request history}
-\label{sec:history}
-
-The direct fixes for \#40004 all target the same trigger point as our scheduler, the \maxseqs{}
-check, and all are unmerged as of October 2026~\cite{issue40004}:
-\begin{itemize}[leftmargin=*,itemsep=2pt]
-  \item \textbf{\#40087} (April 2026) adds waiting-queue preemption at \maxseqs{}, later extended to
-    KV pressure and LoRA accounting. It was closed, reopened, repeatedly flagged for merge conflicts
-    and marked stale after 90 days without activity~\cite{pr40087}.
-  \item \textbf{\#45558} and \textbf{\#45561} (June 2026) are scoped fixes with regression tests;
-    review raised LoRA admission, equal-priority ping-pong and the order of preemption relative to
-    other admission checks~\cite{issue40004}.
-  \item \textbf{\#54530} (August 2026) supersedes \#45558 with strict priority comparison and victim
-    rollback. It has no approving review, carries \texttt{needs-rebase}, and a reviewer reported that
-    victims can be evicted before the token-budget and KV checks that would admit the
-    waiter~\cite{pr54530}. A user measured priority-0 TTFT dropping from 8\,900\,ms to 81\,ms with it.
-  \item \textbf{\#63350} and \textbf{\#63351} (October 2026) cover the KV-pressure case and hold
-    lower-priority prefill back during first tokens; both are off by default and in review.
-\end{itemize}
-
-\subsection{Why the problem was not solved before}
-
-Reading these threads together suggests four reasons.
-\begin{enumerate}[leftmargin=*,itemsep=2pt]
-  \item \textbf{Research MLFQs replace the scheduler.} FastServe is a separate system; the vllm-ltr
-    MLFQ is a 1.2k-line fork. Neither is a small, reviewable change to an engine whose scheduler
-    also handles chunked prefill, prefix caching, LoRA, speculative decoding and structured output.
-  \item \textbf{Preemption is expensive by default.} With recompute preemption, every eviction
-    re-prefills the victim; with swap, it copies the KV cache over PCIe. A policy that preempts often
-    can lose more throughput than it gains in latency, which makes maintainers rightly cautious.
-  \item \textbf{Priority fixes need priorities.} The \#40004 PRs fix strict-priority preemption,
-    which only helps when clients tag requests, and they must be made robust against ping-pong and
-    partial admission, which is where review has stalled.
-  \item \textbf{The saturated case is a corner of the design space.} Below saturation continuous
-    batching already avoids head-of-line blocking, so benchmarks that do not fill \maxseqs{} with
-    long requests do not show the problem; it surfaces in production mixes of agents and
-    interactive traffic, which is exactly what the recent reports in \#40004 describe.
-\end{enumerate}
 
 %=====================================================================
 \section{Design}
 \label{sec:design}
 %=====================================================================
 
-\subsection{Principle: continuous batching first}
+\paragraph{Two regimes.} Below saturation ($|\text{running}| < \maxseqs$) the scheduler is
+continuous batching: waiting requests are admitted best rank first while KV blocks are free, and a
+request that does not fit in the KV cache waits, as in \fcfs{}. At saturation the head of the waiting
+queue may evict running requests under the rules below (Figure~\ref{fig:ours}). Running out of KV
+during decode preempts as in vLLM, but takes the worst-ranked victim.
 
-The scheduler has two regimes. \emph{Below saturation} ($|\text{running}| < \maxseqs$) it is
-continuous batching: waiting requests are admitted best rank first as long as KV blocks are free; a
-request that does not fit in the KV cache waits, exactly as in \fcfs{}. Nothing is preempted to
-admit anyone. \emph{At saturation} a waiting request may evict a running one, under the rules below.
-Running out of KV blocks during decode preempts as in vLLM, but picks the worst-ranked victim
-instead of the most recent one.
+\paragraph{Size-based levels.} With level boundaries $b_0 < b_1 < \dots$ in tokens (default
+1\,024/4\,096/8\,192), a request with $s$ tokens is in level $\min\{i : s \le b_i\}$. Rank is
+$(\text{level}, \text{priority})$, so priorities only break ties. A long prompt starts low (a token
+version of FastServe's skip-join) and a request is demoted as it generates. A waiting request is
+promoted one level every \texttt{aging\_steps} steps and then gets that level's whole band again.
+A short chat thus outranks a long agent context without anyone saying so.
 
-\subsection{Size-based levels}
+\paragraph{Who may evict whom.} A waiting request may evict only if it has never been preempted and
+is in level 0. The victim must rank strictly worse (equal ranks never evict each other), must have
+run at least \texttt{min\_resident\_steps} steps, and must have at least 16 tokens left before its
+\texttt{max\_tokens}. Eviction is all-or-nothing: nobody is evicted for a request that would still not
+fit. The fresh-and-short rule matters: in our first version any better-ranked request could evict, and
+44\% of preemptions were agents evicting agents, which costs a KV copy and buys no latency.
 
-With level boundaries $b_0 < b_1 < \dots < b_{n-1}$ (tokens), a request with $s$ tokens (prompt plus
-generated) is in level $\ell = \min\{i : s \le b_i\}$, or $n$ if it is larger than all boundaries.
-Rank is the pair $(\ell, \textit{priority})$; lower is better, and client priorities only break ties
-within a level. A long prompt therefore starts in a low level (FastServe's skip-join, measured in
-tokens instead of profiled time), and a request is demoted as it generates. Waiting requests age:
-every \texttt{aging\_steps} steps of waiting promote a request one level, and a promoted request
-gets that level's whole token band again before it can drop. Because ranks change only by size and
-by aging, a short chat (level 0) always outranks a multi-thousand-token agent context without anyone
-having to say so.
+\paragraph{Pause instead of swap.} When the batch is full, the scarce resource is the slot, not KV
+memory. A victim evicted only for its slot is \emph{paused}: it leaves the batch but keeps its KV
+blocks on the GPU and resumes with no copy and no recompute. Its blocks are swapped to host memory or
+dropped for recompute only if a newcomer, a decode step or a swap-in actually needs them, and idle
+paused blocks are reclaimed before any running request is evicted.
 
-\subsection{Who may preempt, and whom}
+\paragraph{No waiting, low overhead.} With pausing an eviction is cheap, so a newcomer evicts
+immediately instead of waiting 8 steps for a slot to free up. The waiting queue is re-sorted only
+when its order can change, and aging uses a global step counter. This cuts scheduler time from
+109\,$\mu$s to 15\,$\mu$s per step with 500 waiting requests (\fcfs{}: 5\,$\mu$s) without changing
+any decision (checked step by step on 300 random workloads).
 
-At saturation, the head $h$ of the waiting queue may evict running requests only if
-\begin{enumerate}[leftmargin=*,itemsep=2pt]
-  \item $h$ has never been preempted and is in level $\le L_{\max}$ (we use $L_{\max}=0$: only fresh
-    short requests); earlier victims and aged-up long requests take free slots but never force one;
-  \item the victim ranks \emph{strictly} worse than $h$ (equal ranks never evict each other, so there
-    is no ping-pong);
-  \item the victim has run for at least \texttt{min\_resident\_steps} decode steps since it was last
-    admitted, and has at least \texttt{preempt\_min\_remaining\_tokens} tokens left before its
-    \texttt{max\_tokens};
-  \item evicting is all-or-nothing: victims are chosen worst rank first, only as many as are needed to
-    free a slot and the blocks $h$ needs, and nobody is evicted if $h$ would not fit anyway.
-\end{enumerate}
-Rule~1 is the main difference from priority-based fixes. In our first version any strictly
-better-ranked request could evict, and 44\% of all preemptions turned out to be agents
-evicting agents (a new agent turn at level~1 evicting a level-3 agent, or an aged victim evicting
-another agent): long work traded for long work, no latency gained, a KV copy paid each time.
+\paragraph{Mixed batching.} nano-vllm~\cite{nanovllm} runs each step either as a prefill or as a
+decode, so every admission stalls the whole batch. As in vLLM V1 and
+Sarathi-Serve~\cite{sarathi,vllm-opt}, we reserve one token per running request in each step and
+fill the rest of the token budget with (chunked) prefills. Mixed steps reuse the variable-length
+prefill path, a decode being a one-token query over its paged cache; pure decode steps still use
+CUDA graphs.
 
-\subsection{Pause instead of swap}
-
-In the saturated case the scarce resource is the batch slot, not KV memory. We therefore add a
-\textsc{paused} state (Figure~\ref{fig:states}): a victim evicted only for its slot leaves the batch
-but keeps its KV blocks on the GPU and resumes with no copy and no recompute. Its blocks are
-reclaimed lazily, i.e.\ swapped to host memory or dropped for recompute according to the
-preemption mode, only when something needs them: a newcomer that does not fit otherwise, a decode
-step that runs out of blocks, or a swap-in. Idle paused blocks are always reclaimed before a running
-request is evicted. Paused requests queue by rank like any other waiting request.
-
-\begin{figure}[t]
-\centering
-\begin{tikzpicture}[
-  st/.style={draw, rounded corners, minimum width=2.2cm, minimum height=0.8cm, font=\small},
-  ar/.style={-{Stealth[length=2mm]}, thick},
-  lb/.style={font=\scriptsize, align=center}]
-\node[st] (w) {WAITING};
-\node[st, right=3.2cm of w] (r) {RUNNING};
-\node[st, below=1.5cm of r] (p) {PAUSED};
-\node[st, below=1.5cm of w] (s) {SWAPPED};
-\node[st, right=2.6cm of r] (f) {FINISHED};
-\draw[ar] (w) -- node[above, lb] {prefill / admit} (r);
-\draw[ar] (r) -- node[above, lb] {done} (f);
-\draw[ar] (r.south) -- node[right, lb] {evicted for a slot\\(KV stays on GPU)} (p.north);
-\draw[ar] (p.north west) to[bend left=20] node[left, lb, pos=0.45] {resume,\\no copy} (r.south west);
-\draw[ar] (p) -- node[below, lb] {blocks needed:\\swap out} (s);
-\draw[ar] (s) -- node[left, lb] {swap in} (w);
-\draw[ar] (p.west) to[bend left=10] node[above, lb, pos=0.4] {or drop\\(recompute)} (w.south east);
-\draw[ar, dashed] (r.north) to[bend right=25] node[above, lb] {KV exhausted in decode: swap / recompute} (w.north);
-\end{tikzpicture}
-\caption{Request states. \textsc{paused} is new: a victim evicted only for its batch slot keeps its
-KV cache on the GPU. It is turned into \textsc{swapped} (or dropped for recompute) only when its
-blocks are needed.}
-\label{fig:states}
-\end{figure}
-
-\subsection{No waiting before evicting}
-
-Our first version let a newcomer wait \texttt{preempt\_after\_steps}~$=8$ steps before evicting, in
-case a slot freed up by itself. With agents holding every slot that rarely happens within 8 steps,
-so the wait mostly added about 20\,ms to every chat request. With pausing, an eviction costs almost
-nothing, so v2 evicts immediately; churn is still bounded by \texttt{min\_resident\_steps}.
-
-\subsection{A low-overhead waiting queue}
-
-The first version re-sorted the whole waiting queue and walked it to age every request at every
-step. With a long queue this cost 109\,$\mu$s of Python per step against 5\,$\mu$s for \fcfs{} (500
-waiting requests), several percent of a 3--5\,ms decode step, and it was visible even when nothing
-was ever preempted. v2 re-sorts only when the order can have changed (a newcomer that ranks ahead of
-the tail, a preemption, an aging promotion) and implements aging with a global step counter: a
-request that started waiting at step $w$ is filed under $w \bmod \texttt{aging\_steps}$, so each step
-touches only the requests due at that step. This brings the cost to 15\,$\mu$s per step. We verified
-that v2 makes the same decisions as v1, step by step, on 300 random workloads.
-
-\begin{algorithm}[t]
-\caption{Admission at saturation (one scheduler step)}
-\label{alg:admit}
-\begin{algorithmic}[1]
-\State $h \gets$ head of the waiting queue (sorted by rank, then arrival)
-\If{$|\text{running}| < \maxseqs$}
-  \State admit $h$ if its KV blocks fit (reclaiming idle paused blocks if needed) \Comment{continuous batching}
-\ElsIf{$h$ is fresh \textbf{and} level$(h) \le L_{\max}$}
-  \State $V \gets \{v \in \text{running} : \text{rank}(v) > \text{rank}(h),\ \text{resident}(v) \ge R,\ \text{remaining}(v) \ge M\}$
-  \If{$V \neq \emptyset$}
-    \State $v \gets$ worst-ranked member of $V$
-    \If{free blocks $+$ idle paused blocks $\ge$ blocks$(h)$}
-      \State reclaim idle paused blocks as needed; \textbf{pause} $v$ (keep its KV); admit $h$
-    \ElsIf{freeing $v$ (and further victims, worst first) covers blocks$(h)$}
-      \State release their KV (swap or recompute); admit $h$
-    \EndIf \Comment{otherwise evict nobody}
-  \EndIf
-\EndIf
-\end{algorithmic}
-\end{algorithm}
-
-\subsection{Mixed prefill/decode batching}
-\label{sec:mixed}
-
-nano-vllm runs each step either as a prefill or as a decode, so every admitted request stalls the
-whole batch for a prefill step, and an MLFQ admits short requests more often than \fcfs{}. We add
-vLLM-V1-style mixed batches (\texttt{mixed\_batching=True}): each step first reserves one token per
-running request, then fills the rest of the token budget with prefills in queue order; the last one
-is chunked if it does not fit and stays at the head of the queue. Mixed steps reuse the existing
-variable-length prefill path: a decode is a one-token query over its paged KV cache, so neither the
-attention kernel nor the logits selection changes; pure decode steps still replay CUDA graphs.
-Randomized testing found one deadlock specific to mixed batching, which we fixed: under \fcfs{}, a
-request evicted during decode was queued in front of a half-finished chunked prefill whose blocks it
-then waited for.
-
-\subsection{Defaults and safety}
-
-All options are opt-in. With \texttt{scheduling\_policy="fcfs"} (the default) none of the MLFQ or
-preemption code runs, and with \texttt{mixed\_batching=False} the scheduler's decisions are unchanged; both
-statements were checked step by step against the original scheduler on 300 random workloads. The
-recommended configuration is
-\begin{verbatim}
-LLM(model, scheduling_policy="mlfq", mlfq_level_tokens=(1024, 4096, 8192),
-    aging_steps=200, min_resident_steps=4, preempt_after_steps=0,
-    preemption_mode="auto", swap_space=4, swap_min_tokens=256,
-    pause_victims=True, mlfq_preempt_max_level=0,
-    preempt_min_remaining_tokens=16, mixed_batching=True)
-\end{verbatim}
+\paragraph{Footprint.} Everything is opt-in. With the default \fcfs{} policy and mixed batching off,
+the scheduler's decisions are unchanged. The whole change is about 485 lines over nano-vllm.
 
 %=====================================================================
 \section{Evaluation}
 \label{sec:eval}
 %=====================================================================
 
-\subsection{Setup}
+\paragraph{Setup.} One NVIDIA H100 PCIe, Qwen3-0.6B (bf16), CUDA graphs, 256-token KV blocks.
+\emph{Agents} are closed-loop multi-turn sessions (300--600-token start, 128--384 tokens per turn, a
+50--150-token tool result appended, 0.5\,s think time, priority 1). \emph{Chat} arrives as a Poisson
+stream (32--128-token prompts, 16--128 output tokens, priority 0). Each run has 45\,s of arrivals;
+results are means over three seeds. MLFQ levels are 256/512/1\,024 tokens. Scenarios:
+\emph{batch-cap} (8 slots, 12 agents, 4 chats/s, ample KV: the \#40004 case), \emph{no-priority}
+(the same with equal priorities), \emph{kv-pressure} (64 slots, 10k tokens of KV), \emph{normal}
+(32 slots, 4 agents, 1 chat/s) and \emph{all-short} (chat only, 40/s into 8 slots). \fcfs{} is
+nano-vllm's original scheduler; \emph{priority-swap} is strict priority with preemption at
+\maxseqs{}; MLFQ\,v1 is our first design (any better rank evicts, victims swapped, 8-step wait).
 
-\paragraph{System.} One NVIDIA H100 PCIe, Qwen3-0.6B in bf16, PyTorch 2.7.1, FlashAttention 2.8.3,
-CUDA graphs on, KV block size 256 tokens. Each configuration runs as its own engine process.
-
-\paragraph{Workload.} An online benchmark mixes two request classes.
-\emph{Agents} are closed-loop multi-turn sessions: a 300--600-token start, 128--384 generated tokens
-per turn, a 50--150-token tool result appended, 0.5\,s think time, and a reset at 2\,048 tokens; they
-have priority~1. \emph{Chat} arrives open-loop (Poisson) with 32--128-token prompts and 16--64 output
-tokens (70\%) or 64--128 (30\%), at priority~0. Arrivals run for 45\,s; we report means over three
-seeds (0, 1, 2), each with its own arrival sequence. The benchmark uses MLFQ levels of
-256/512/1\,024 tokens, so chat always starts in level~0 and agents in levels 1--3.
-
-\paragraph{Scenarios.}
-\begin{itemize}[leftmargin=*,itemsep=1pt]
-  \item \emph{batch-cap}: 8 slots, 12 agents, 4 chats/s, plenty of KV (131k tokens): the \#40004 case.
-  \item \emph{no-priority}: as batch-cap, but chat and agents have the same priority.
-  \item \emph{kv-pressure}: 64 slots but only 10k tokens of KV cache: KV is the bottleneck.
-  \item \emph{normal}: 32 slots, 4 agents, 1 chat/s: the batch never fills.
-  \item \emph{all-short}: chat only at 40/s into 8 slots, more than the GPU can serve, so the queue
-    grows; every request is short.
-\end{itemize}
-
-\paragraph{Configurations.} \fcfs{} is nano-vllm's original scheduler. \emph{priority-swap} is strict
-priority with \#40004-style preemption at \maxseqs{} and swap. \vone{} is our first design
-(any better rank may evict, swap victims, 8-step wait). The ablation adds one v2 change at a time on
-top of \vone{}, ending at \vtwo{}. ``+mixed'' enables mixed batching.
-
-\subsection{What each change does}
-
-Figure~\ref{fig:ablation} shows the ablation; Table~\ref{tab:ablation} lists the batch-full
-numbers. Each step isolates one design choice:
-\begin{itemize}[leftmargin=*,itemsep=2pt]
-  \item \textbf{Low-overhead queue.} In all-short, \vone{} lost 6.1\% throughput to \fcfs{} while
-    making the same scheduling decisions (step counts within 0.2\% of \fcfs{}); the fix brings this to 2.4\%.
-  \item \textbf{Pause.} All KV copies disappear (about 170 swap-outs and as many swap-ins per run,
-    2\,100--2\,200 blocks, become zero) and throughput rises by about 1.5\% in both batch-full
-    scenarios.
-  \item \textbf{Only fresh short requests evict.} Preemptions drop by 44\% (172 to 97) with
-    unchanged chat latency; the removed preemptions were agents evicting agents.
-  \item \textbf{No wait.} Chat TTFT p50 drops from 44 to 24\,ms and p99 from about 80--94 to 42\,ms,
-    at no measurable throughput cost (1\,860 to 1\,857 tok/s).
-  \item \textbf{Spare nearly finished runners.} Neutral here, as expected; it guards the case of a
-    request that crosses a level boundary just before it finishes.
-\end{itemize}
+\paragraph{What each change does.} Figure~\ref{fig:ablation} adds the v2 changes one at a time.
+The low-overhead queue removes most of v1's cost when the queue is long (all-short: $-6.1\%$ to
+$-2.4\%$ throughput). Pausing removes every KV copy (about 2\,150 blocks per run) and gains about
+1.5\% throughput. Allowing only fresh short requests to evict cuts preemptions by 44\% at the same
+chat latency. Evicting without waiting lowers chat TTFT p99 from 94\,ms to 42\,ms at no measurable
+throughput cost.
 
 \begin{figure}[t]
 \centering
 \includegraphics[width=\linewidth]{figures/ablation.png}
-\caption{Ablation, mean of three seeds (band: min--max). The x-axis adds one change at a time; the
-leftmost point is \fcfs{}, every other point is MLFQ. Line colours are \emph{scenarios} (blue:
-batch full with priorities; orange: batch full without priorities; green: KV cache full). Chat
-latency panels use a log scale.}
+\caption{Adding the v2 changes one at a time (mean of three seeds, band: min--max). The leftmost
+point is \fcfs{}; line colours are scenarios.}
 \label{fig:ablation}
 \end{figure}
 
 \begin{table}[t]
 \centering
 \small
-\caption{Ablation with a full batch (batch-cap), mean of three seeds.}
-\label{tab:ablation}
-\begin{tabular}{lrrrrrr}
-\toprule
-config & TTFT p50 & TTFT p99 & agent e2e p50 & tok/s & preempt & KV swap-outs \\
-\midrule
-\fcfs{}            & 280\,ms & 675\,ms & 1.25\,s & 1935 & 0   & 0 \\
-priority-swap      & 25\,ms  & 42\,ms  & 1.28\,s & 1860 & 135 & 135 \\
-\midrule
-\vone{}            & 45\,ms  & 92\,ms  & 1.34\,s & 1817 & 173 & 173 \\
-+ low-overhead     & 43\,ms  & 82\,ms  & 1.30\,s & 1852 & 169 & 169 \\
-+ pause victims    & 43\,ms  & 74\,ms  & 1.27\,s & 1880 & 172 & 0 \\
-+ short-only evict & 44\,ms  & 94\,ms  & 1.27\,s & 1860 & 97  & 0 \\
-+ no wait          & 24\,ms  & 42\,ms  & 1.30\,s & 1857 & 132 & 0 \\
-\vtwo{} (+ spare)  & 26\,ms  & 43\,ms  & 1.29\,s & 1869 & 130 & 0 \\
-\bottomrule
-\end{tabular}
-\end{table}
-
-\subsection{Main results}
-
-Figure~\ref{fig:bars} puts the schedulers side by side, Table~\ref{tab:main} lists the final
-configurations, and Figure~\ref{fig:mixed} shows the effect of mixed batching on each policy.
-Appendix~\ref{app:scenarios} has one bar chart per scenario with all metrics.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{figures/bars.png}
-\caption{Schedulers side by side in the three saturated scenarios, mean of three seeds. Left: chat
-TTFT p99 (log scale). Middle: output throughput relative to the original \fcfs{} scheduler in the
-same scenario (\fcfs{} itself is 0 by definition and not drawn). Right: KV blocks copied between GPU
-and host per run. \vtwo{} with mixed batching has the lowest chat latency everywhere, loses at most
-0.8\% throughput, and copies nothing while the batch, not the KV cache, is the bottleneck.}
-\label{fig:bars}
-\end{figure}
-
-\begin{table}[t]
-\centering
-\small
-\caption{Main results, mean of three seeds. ``vs fcfs'' is throughput relative to the original
-scheduler in the same scenario. Best chat latency per scenario in bold.}
+\caption{Main results, mean of three seeds. Throughput is relative to \fcfs{} in the same scenario.}
 \label{tab:main}
 \begin{tabular}{llrrrrr}
 \toprule
-scenario & config & TTFT p50 & TTFT p99 & agent e2e p50 & tok/s & vs fcfs \\
+scenario & scheduler & TTFT p50 & TTFT p99 & agent e2e p50 & tok/s & vs \fcfs{} \\
 \midrule
-\multirow{6}{*}{batch-cap}
- & \fcfs{}                 & 280\,ms & 675\,ms & 1.25\,s & 1935 & +0.0\% \\
- & priority-swap           & 25\,ms  & 42\,ms  & 1.28\,s & 1860 & $-3.9$\% \\
- & \vtwo{}                 & 26\,ms  & 43\,ms  & 1.29\,s & 1869 & $-3.4$\% \\
- & \fcfs{}+mixed           & 259\,ms & 586\,ms & 1.19\,s & 1993 & +3.0\% \\
- & priority-swap+mixed     & 24\,ms  & 38\,ms  & 1.22\,s & 1930 & $-0.3$\% \\
- & \vtwo{}+mixed           & \best{23\,ms} & \best{37\,ms} & 1.19\,s & 1933 & $-0.1$\% \\
+\multirow{5}{*}{batch-cap}
+ & \fcfs{}               & 280\,ms & 675\,ms & 1.25\,s & 1935 & --- \\
+ & priority-swap         & 25\,ms  & 42\,ms  & 1.28\,s & 1860 & $-3.9$\% \\
+ & MLFQ\,v1              & 45\,ms  & 92\,ms  & 1.34\,s & 1817 & $-6.1$\% \\
+ & \vtwo{}               & 26\,ms  & 43\,ms  & 1.29\,s & 1869 & $-3.4$\% \\
+ & \vtwo{} + mixed       & \textbf{23\,ms} & \textbf{37\,ms} & 1.19\,s & 1933 & $-0.1$\% \\
 \midrule
-\multirow{6}{*}{no-priority}
- & \fcfs{}                 & 257\,ms & 562\,ms & 1.23\,s & 1924 & +0.0\% \\
- & priority-swap           & 283\,ms & 665\,ms & 1.24\,s & 1907 & $-0.9$\% \\
- & \vtwo{}                 & 25\,ms  & 48\,ms  & 1.28\,s & 1859 & $-3.4$\% \\
- & \fcfs{}+mixed           & 263\,ms & 630\,ms & 1.22\,s & 1976 & +2.7\% \\
- & priority-swap+mixed     & 261\,ms & 630\,ms & 1.23\,s & 1957 & +1.7\% \\
- & \vtwo{}+mixed           & \best{24\,ms} & \best{39\,ms} & 1.19\,s & 1923 & $-0.1$\% \\
+\multirow{3}{*}{no-priority}
+ & \fcfs{}               & 257\,ms & 562\,ms & 1.23\,s & 1924 & --- \\
+ & priority-swap         & 283\,ms & 665\,ms & 1.24\,s & 1907 & $-0.9$\% \\
+ & \vtwo{} + mixed       & \textbf{24\,ms} & \textbf{39\,ms} & 1.19\,s & 1923 & $-0.1$\% \\
 \midrule
-\multirow{4}{*}{kv-pressure}
- & \fcfs{}                 & 270\,ms & 1101\,ms & 1.30\,s & 1848 & +0.0\% \\
- & priority-swap           & 28\,ms  & 146\,ms  & 1.38\,s & 1789 & $-3.2$\% \\
- & \vtwo{}                 & 29\,ms  & 168\,ms  & 1.35\,s & 1776 & $-3.9$\% \\
- & \vtwo{}+mixed           & \best{28\,ms} & \best{143\,ms} & 1.28\,s & 1834 & $-0.8$\% \\
+\multirow{2}{*}{kv-pressure}
+ & \fcfs{}               & 270\,ms & 1101\,ms & 1.30\,s & 1848 & --- \\
+ & \vtwo{} + mixed       & \textbf{28\,ms} & \textbf{143\,ms} & 1.28\,s & 1834 & $-0.8$\% \\
 \midrule
-\multirow{3}{*}{normal}
- & \fcfs{}                 & 29\,ms & 34\,ms & 0.79\,s & 836 & +0.0\% \\
- & \vtwo{}                 & 31\,ms & 51\,ms & 0.82\,s & 829 & $-0.7$\% \\
- & \vtwo{}+mixed           & 30\,ms & 40\,ms & 0.81\,s & 836 & +0.1\% \\
+\multirow{2}{*}{normal}
+ & \fcfs{}               & 29\,ms & 34\,ms & 0.79\,s & 836 & --- \\
+ & \vtwo{} + mixed       & 30\,ms & 40\,ms & 0.81\,s & 836 & $+0.1$\% \\
 \midrule
-\multirow{4}{*}{all-short}
- & \fcfs{}                 & 10.7\,s & 20.8\,s & -- & 1482 & +0.0\% \\
- & \vtwo{}                 & 12.2\,s & 23.7\,s & -- & 1421 & $-4.1$\% \\
- & \fcfs{}+mixed           & 9.2\,s  & 17.7\,s & -- & 1558 & +5.1\% \\
- & \vtwo{}+mixed           & 9.2\,s  & 17.9\,s & -- & 1554 & +4.8\% \\
+\multirow{2}{*}{all-short}
+ & \fcfs{}               & 10.7\,s & 20.8\,s & --- & 1482 & --- \\
+ & \vtwo{} + mixed       & 9.2\,s  & 17.9\,s & --- & 1554 & $+4.8$\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
+\paragraph{Main results.} Table~\ref{tab:main} and Figure~\ref{fig:scenarios} summarise the
+comparison. With a full batch, \vtwo{} with mixed batching lowers chat TTFT p99 from 675\,ms to
+37\,ms (18$\times$) when chat has priority, and from 562\,ms to 39\,ms (14$\times$) when nobody sets
+priorities, where priority scheduling does nothing (665\,ms). Throughput is within 0.1\% of the
+original scheduler, agent turns are 3--5\% faster, and no KV cache is copied. Under normal load and
+in all-short it never preempts. Under KV pressure chat p99 drops from 1\,101\,ms to 143\,ms at 0.8\%
+throughput; evictions there still need swapping. Figure~\ref{fig:mixed} shows that mixed batching
+raises every scheduler's throughput by about 3\% and is what closes MLFQ's remaining gap.
+
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.92\linewidth]{figures/mixed.png}
-\caption{Each policy without (left point) and with (right point) mixed batching, mean of three
-seeds; whiskers span min--max; percentages are the change caused by mixed batching.}
+\includegraphics[width=\linewidth]{figures/scenario-batch-cap.png}\\[4pt]
+\includegraphics[width=\linewidth]{figures/scenario-no-priority.png}
+\caption{All schedulers with a full batch, with priorities (top) and without (bottom); mean of
+three seeds, whiskers min--max, factors relative to \fcfs{}.}
+\label{fig:scenarios}
+\end{figure}
+
+\begin{figure}[t]
+\centering
+\includegraphics[width=0.85\linewidth]{figures/mixed.png}
+\caption{Each scheduler with separate prefill steps (left point) and with mixed batching (right
+point), mean of three seeds.}
 \label{fig:mixed}
 \end{figure}
 
-\paragraph{Full batch.} \vtwo{} with mixed batching cuts chat TTFT p99 from 675\,ms to 37\,ms
-(18$\times$) when chat has priority and from 562\,ms to 39\,ms (14$\times$) when nobody sets
-priorities, at 0.1\% less throughput than the original \fcfs{} scheduler, with agent turns 3--5\%
-faster (1.19\,s vs.\ 1.23--1.25\,s) and no KV cache copied. Strict priority with preemption reaches
-similar latency only when priorities are set (38\,ms), copies 131 KV caches per run, and does nothing
-without priorities (630\,ms).
-
-\paragraph{No saturation.} Under normal load and in all-short, \vtwo{} never preempts: zero
-preemptions in every run. With mixed batching its throughput equals \fcfs{}'s (836 vs.\ 836 tok/s;
-1\,554 vs.\ 1\,558 tok/s).
-
-\paragraph{KV pressure.} With free slots there is no admission preemption, so \vtwo{} acts only
-through queue order and through the choice of victim when decode runs out of blocks. Chat TTFT p99
-drops from 1\,101\,ms to 143\,ms. These evictions still need their blocks, so they are swapped; with
-mixed batching the throughput cost is 0.8\%.
-
-\paragraph{What remains.} Against \fcfs{} \emph{with} mixed batching, \vtwo{}+mixed is about 3\%
-lower in throughput when the batch is full (1\,933 vs.\ 1\,993 tok/s). We regard this as the actual
-trade: a chat request that takes a slot generates fewer tokens per step than the agent it pauses.
-In all-short without mixed batching \vtwo{} is 2--4\% slower than \fcfs{} although it makes the same
-decisions and runs the same number of steps to within 0.2\%; its scheduler costs only about 8\,$\mu$s more per step
-there (0.15\% of a 5.5\,ms step), and priority-swap, which pins the same 4\,GiB of host swap space,
-is not slower with mixed batching. The gap disappears with mixed batching; we have not identified
-its root cause.
-
-\subsection{Correctness}
-
-CPU tests cover preemption rules, swap bookkeeping, MLFQ levels, aging, pausing (no copy, resume,
-lazy reclaim before evicting a runner), the preemption limits and mixed batching, plus randomized
-workloads that check KV block accounting invariants after every step across all policies, preemption
-modes and option combinations (348 tests; 40 additional seeds per policy with mixed batching forced
-on). GPU tests check that swapping blocks out and back is bit-exact, that swapped and paused requests
-produce exactly the same greedy tokens as an undisturbed run, and that a mixed step produces the same
-tokens as running each request alone.
-
-%=====================================================================
-\section{Discussion and Limitations}
-\label{sec:discussion}
-%=====================================================================
-
-\paragraph{Transfer to vLLM.} The trigger point is the same line that the \#40004 PRs patch: the
-\texttt{len(running) == max\_num\_running\_reqs} check in the V1 scheduler. vLLM V1 already mixes
-prefill and decode, which our results show is what makes frequent admission cheap. The pieces that
-would need porting are the size-based rank (a key function on requests), the fresh-short-only and
-strictly-worse rules (which also address the ping-pong and partial-admission concerns raised in
-review), and the paused state, which in vLLM terms is a preempted request whose KV blocks are not yet
-freed. Interactions with LoRA slots, speculative decoding, structured output and pipeline
-parallelism are not covered by our prototype.
-
-\paragraph{Limitations.} All results come from one small model (Qwen3-0.6B) on one GPU with a
-synthetic workload, 45\,s per run and three seeds; single runs vary by about $\pm 2$--$3\%$ in
-throughput. Larger models shift the balance between prefill and decode cost and therefore the cost of
-admission. Level boundaries are in tokens, which favours short requests by construction; a request
-that is long and urgent needs a priority (which widens its bands via \texttt{mlfq\_priority\_scale}).
-Pausing keeps victims' KV on the GPU, which is free only while KV memory is not the bottleneck; under
-KV pressure our scheduler falls back to swap or recompute like any other.
+\paragraph{Limitations.} One small model on one GPU, a synthetic workload, 45\,s runs and three
+seeds (single runs vary by about $\pm2$--$3\%$). Against \fcfs{} \emph{with} mixed batching, \vtwo{}
+is still about 3\% lower in throughput with a full batch, which we see as the inherent trade of giving
+slots to short requests. Without mixed batching, \vtwo{} is 2--4\% slower than \fcfs{} in all-short
+despite identical decisions; the cause is not scheduler CPU time and remains open. Porting to vLLM
+needs the size-based rank, the eviction rules and a paused state at the \maxseqs{} check that the
+\#40004 PRs patch, plus handling of LoRA, speculative decoding and pipeline parallelism, which our
+prototype does not cover.
 
 %=====================================================================
 \section{Conclusion}
 %=====================================================================
 
-Head-of-line blocking in a continuous-batching LLM server is a saturation problem: it appears only
-when every batch slot is taken. Preempting only then, ranking requests by their size, letting only
-fresh short requests evict, and pausing victims instead of copying their KV cache removes the
-blocking that vLLM issue \#40004 reports while leaving the server's normal behaviour untouched. With
-mixed prefill/decode batching the cost against the original scheduler is within measurement noise.
+Head-of-line blocking in a continuous-batching LLM server is a saturation problem. Preempting only
+when the batch is full, ranking requests by size, letting only fresh short requests evict and pausing
+victims instead of copying their KV cache removes the blocking reported in vLLM issue \#40004 while
+leaving normal operation untouched; with mixed batching it costs no measurable throughput.
 
-%=====================================================================
-\appendix
-\section{Per-scenario results}
-\label{app:scenarios}
-
-Figures~\ref{fig:sc-batch-cap}--\ref{fig:sc-all-short} show every metric for every configuration,
-one scenario per figure. Bars are means over three seeds, whiskers span the minimum and maximum
-seed, and the factor under each value is relative to \fcfs{} in the same scenario.
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{figures/scenario-batch-cap.png}
-\caption{Batch full (8 slots, 12 agents, 4 chats/s), chat has priority: the \#40004 case.}
-\label{fig:sc-batch-cap}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{figures/scenario-no-priority.png}
-\caption{Batch full, chat and agents with the same priority: only MLFQ can tell them apart.}
-\label{fig:sc-no-priority}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{figures/scenario-kv-pressure.png}
-\caption{KV cache full (10k tokens) with free batch slots: no admission preemption by design.}
-\label{fig:sc-kv-pressure}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{figures/scenario-normal.png}
-\caption{Normal load, the batch never fills: MLFQ never preempts and matches \fcfs{}.}
-\label{fig:sc-normal}
-\end{figure}
-
-\begin{figure}[h]
-\centering
-\includegraphics[width=\linewidth]{figures/scenario-all-short.png}
-\caption{Only short requests (chat at 40/s, overloaded): every request is in level 0, so MLFQ never preempts; there are no agents, so agent latency is not shown.}
-\label{fig:sc-all-short}
-\end{figure}
-\clearpage
 %=====================================================================
 \begin{thebibliography}{99}
-%=====================================================================
+\small
 
 \bibitem{orca}
 G.-I. Yu, J.~S. Jeong, G.-W. Kim, S.~Kim, and B.-G. Chun.
@@ -787,7 +351,7 @@ A.~Agrawal, N.~Kedia, A.~Panwar, J.~Mohan, N.~Kwatra, B.~S. Gulavani, A.~Tumanov
 \bibitem{fastserve}
 B.~Wu, Y.~Zhong, Z.~Zhang, S.~Liu, F.~Liu, Y.~Sun, G.~Huang, X.~Liu, and X.~Jin.
 \newblock Fast distributed inference serving for large language models.
-\newblock arXiv:2305.05920, 2023 (v3, 2024).
+\newblock arXiv:2305.05920, 2023.
 
 \bibitem{fastserve-nsdi}
 B.~Wu, Y.~Zhong, Z.~Zhang, S.~Liu, F.~Liu, Y.~Sun, G.~Huang, X.~Liu, and X.~Jin.
@@ -800,40 +364,25 @@ Y.~Fu, S.~Zhu, R.~Su, A.~Qiao, I.~Stoica, and H.~Zhang.
 \newblock In \emph{NeurIPS}, 2024.
 
 \bibitem{nanovllm}
-nano-vllm: a lightweight vLLM implementation built from scratch.
-\newblock \url{https://github.com/GeeeekExplorer/nano-vllm}.
+nano-vllm. \url{https://github.com/GeeeekExplorer/nano-vllm}.
 
 \bibitem{issue40004}
-vLLM issue \#40004: [Feature]: Priority scheduling supports preemption of requests in the running
-queue by requests in the waiting queue. Opened April 16, 2026.
-\newblock \url{https://github.com/vllm-project/vllm/issues/40004}.
+vLLM issue \#40004: Priority scheduling supports preemption of requests in the running queue by
+requests in the waiting queue. \url{https://github.com/vllm-project/vllm/issues/40004}.
 
 \bibitem{pr40087}
-vLLM pull request \#40087: [Scheduler] Priority scheduling supports preemption of requests in the
-running queue by requests in the waiting queue.
-\newblock \url{https://github.com/vllm-project/vllm/pull/40087}.
+vLLM pull request \#40087. \url{https://github.com/vllm-project/vllm/pull/40087}.
 
 \bibitem{pr54530}
-vLLM pull request \#54530: [Core] Fix priority scheduling: allow waiting high-priority request to
-preempt running lower-priority one at max\_num\_seqs.
-\newblock \url{https://github.com/vllm-project/vllm/pull/54530}.
+vLLM pull request \#54530. \url{https://github.com/vllm-project/vllm/pull/54530}.
 
 \bibitem{sglang45688}
-SGLang pull request \#45688: [Feat] scheduler: Add a skip-join MLFQ policy with cache-aware
-placement and a prefill gate. Opened October 21, 2026.
-\newblock \url{https://github.com/sgl-project/sglang/pull/45688}.
+SGLang pull request \#45688: skip-join MLFQ policy.
+\url{https://github.com/sgl-project/sglang/pull/45688}.
 
 \bibitem{vllm-opt}
-vLLM documentation: Optimization and tuning (preemption, chunked prefill).
-\newblock \url{https://docs.vllm.ai/en/latest/configuration/optimization/}.
-
-\bibitem{vllm-priority-forum}
-vLLM forum: Priority in batch API.
-\newblock \url{https://discuss.vllm.ai/t/priority-in-batch-api/2376}.
-
-\bibitem{vllm-fcfs-forum}
-vLLM forum: Is FCFS scheduling holding back vLLM's performance in production? September 2025.
-\newblock \url{https://discuss.vllm.ai/t/is-fcfs-scheduling-holding-back-vllms-performance-in-production/1584}.
+vLLM documentation: Optimization and tuning.
+\url{https://docs.vllm.ai/en/latest/configuration/optimization/}.
 
 \end{thebibliography}
 
