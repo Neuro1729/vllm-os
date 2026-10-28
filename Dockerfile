@@ -26,10 +26,9 @@ COPY requirements-gpu.txt /tmp/requirements-gpu.txt
 RUN grep -v -E '^(#|torch==|$)' /tmp/requirements-gpu.txt | sed 's/[[:space:]]*#.*$//' | grep -v '^$' > /tmp/requirements-noncuda.txt \
     && pip install -r /tmp/requirements-noncuda.txt
 
-# flash-attn compiles against the devel image's nvcc when no prebuilt wheel matches.
-# This step is the slowest part of the build; MAX_JOBS limits parallel compilation.
-ARG MAX_JOBS=4
-RUN MAX_JOBS=${MAX_JOBS} pip install "flash-attn==2.7.4.post1" --no-build-isolation
+# Prebuilt flash-attn wheel for torch 2.6 + CUDA 12 + Python 3.10 (no source compile).
+# Source builds with --no-build-isolation fail here because the venv has no `wheel` package.
+RUN pip install "https://github.com/Dao-AILab/flash-attention/releases/download/v2.7.4.post1/flash_attn-2.7.4.post1%2Bcu12torch2.6cxx11abiFALSE-cp310-cp310-linux_x86_64.whl"
 
 # Copy the repository last so code edits do not invalidate the dependency layers.
 # .git is included so the V0 baseline (commit e1da1f5) can be checked out as a worktree.
