@@ -1,7 +1,7 @@
 """Per-scenario bar charts (the docs/img/<scenario>.png layout) from the 3-seed results,
 with MLFQ v2 and mixed batching added. Bars are means over seeds, whiskers min-max.
 
-    python -m benchmarks.plot_scenarios [results/mlfq_v2_bench.jsonl] [results/mixed_bench.jsonl] [docs/img]
+    python -m benchmarks.plot_scenarios [results/mlfq_v2_bench.jsonl] [results/mixed_bench.jsonl] [docs/img] [paper/figures]
 """
 import os
 import sys
@@ -42,8 +42,8 @@ def stats(runs, key, get):
     return (np.mean(vals), min(vals), max(vals)) if vals else None
 
 
-def plot_scenario(runs, scenario, out_dir):
-    configs = [c for c in CONFIGS if (scenario, c[0]) in runs]
+def plot_scenario(runs, scenario, out_dir, configs=CONFIGS, prefix="scenario-"):
+    configs = [c for c in configs if (scenario, c[0]) in runs]
     metrics = [m for m in METRICS if stats(runs, (scenario, "fcfs"), m[1])]    # all-short has no agents
     fig, axes = plt.subplots(1, len(metrics), figsize=(3.9 * len(metrics), 3.9), facecolor=SURFACE)
     for ax, (title, get, unit, lower) in zip(axes, metrics):
@@ -73,18 +73,25 @@ def plot_scenario(runs, scenario, out_dir):
     fig.suptitle(f"{SCENARIOS[scenario]}  (mean of 3 seeds, whisker = min-max, x = relative to fcfs)",
                  x=0.01, ha="left", fontsize=11, color=INK)
     fig.tight_layout(rect=(0, 0, 1, 0.93))
-    path = os.path.join(out_dir, f"scenario-{scenario}.png")
+    path = os.path.join(out_dir, f"{prefix}{scenario}.png")
     fig.savefig(path, dpi=130, facecolor=SURFACE)
     plt.close(fig)
     return path
 
 
-def main(base_path="results/mlfq_v2_bench.jsonl", mixed_path="results/mixed_bench.jsonl", out_dir="docs/img"):
+# the paper shows only the final scheduler against the two baselines
+PAPER_CONFIGS = [CONFIGS[0], CONFIGS[1], ("mlfq-v2+mixed", "ours", "#2a78d6")]
+
+
+def main(base_path="results/mlfq_v2_bench.jsonl", mixed_path="results/mixed_bench.jsonl", out_dir="docs/img",
+         paper_dir=None):
     runs = load(base_path)
     runs.update(load(mixed_path))
     os.makedirs(out_dir, exist_ok=True)
     for scenario in SCENARIOS:
         print(plot_scenario(runs, scenario, out_dir))
+        if paper_dir:
+            print(plot_scenario(runs, scenario, paper_dir, PAPER_CONFIGS, prefix="results-"))
 
 
 if __name__ == "__main__":

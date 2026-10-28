@@ -19,7 +19,6 @@
 
 \setlist{leftmargin=*,itemsep=2pt,topsep=3pt}
 \newcommand{\fcfs}{\textsc{fcfs}}
-\newcommand{\vtwo}{MLFQ\,v2}
 \newcommand{\maxseqs}{\texttt{max\_num\_seqs}}
 
 \title{Preempt Only When the Batch Is Full:\\
@@ -193,8 +192,9 @@ A short chat thus outranks a long agent context without anyone saying so.
 is in level 0. The victim must rank strictly worse (equal ranks never evict each other), must have
 run at least \texttt{min\_resident\_steps} steps, and must have at least 16 tokens left before its
 \texttt{max\_tokens}. Eviction is all-or-nothing: nobody is evicted for a request that would still not
-fit. The fresh-and-short rule matters: in our first version any better-ranked request could evict, and
-44\% of preemptions were agents evicting agents, which costs a KV copy and buys no latency.
+fit. The fresh-and-short rule matters: if any better-ranked request may evict, 44\% of preemptions
+are agents evicting agents (a new agent turn at a higher level, or an aged-up victim), which costs a
+KV copy and buys no latency.
 
 \paragraph{Pause instead of swap.} When the batch is full, the scarce resource is the slot, not KV
 memory. A victim evicted only for its slot is \emph{paused}: it leaves the batch but keeps its KV
@@ -203,10 +203,10 @@ dropped for recompute only if a newcomer, a decode step or a swap-in actually ne
 paused blocks are reclaimed before any running request is evicted.
 
 \paragraph{No waiting, low overhead.} With pausing an eviction is cheap, so a newcomer evicts
-immediately instead of waiting 8 steps for a slot to free up. The waiting queue is re-sorted only
-when its order can change, and aging uses a global step counter. This cuts scheduler time from
-109\,$\mu$s to 15\,$\mu$s per step with 500 waiting requests (\fcfs{}: 5\,$\mu$s) without changing
-any decision (checked step by step on 300 random workloads).
+immediately instead of waiting for a slot to free up; churn is bounded by
+\texttt{min\_resident\_steps}. The waiting queue is re-sorted only when its order can change, and
+aging uses a global step counter, so a scheduler step costs 15\,$\mu$s with 500 waiting requests
+instead of 109\,$\mu$s for re-sorting and aging the whole queue (\fcfs{}: 5\,$\mu$s).
 
 \paragraph{Mixed batching.} nano-vllm~\cite{nanovllm} runs each step either as a prefill or as a
 decode, so every admission stalls the whole batch. As in vLLM V1 and
@@ -231,91 +231,82 @@ results are means over three seeds. MLFQ levels are 256/512/1\,024 tokens. Scena
 \emph{batch-cap} (8 slots, 12 agents, 4 chats/s, ample KV: the \#40004 case), \emph{no-priority}
 (the same with equal priorities), \emph{kv-pressure} (64 slots, 10k tokens of KV), \emph{normal}
 (32 slots, 4 agents, 1 chat/s) and \emph{all-short} (chat only, 40/s into 8 slots). \fcfs{} is
-nano-vllm's original scheduler; \emph{priority-swap} is strict priority with preemption at
-\maxseqs{}; MLFQ\,v1 is our first design (any better rank evicts, victims swapped, 8-step wait).
-
-\paragraph{What each change does.} Figure~\ref{fig:ablation} adds the v2 changes one at a time.
-The low-overhead queue removes most of v1's cost when the queue is long (all-short: $-6.1\%$ to
-$-2.4\%$ throughput). Pausing removes every KV copy (about 2\,150 blocks per run) and gains about
-1.5\% throughput. Allowing only fresh short requests to evict cuts preemptions by 44\% at the same
-chat latency. Evicting without waiting lowers chat TTFT p99 from 94\,ms to 42\,ms at no measurable
-throughput cost.
-
-\begin{figure}[t]
-\centering
-\includegraphics[width=\linewidth]{figures/ablation.png}
-\caption{Adding the v2 changes one at a time (mean of three seeds, band: min--max). The leftmost
-point is \fcfs{}; line colours are scenarios.}
-\label{fig:ablation}
-\end{figure}
+nano-vllm's original scheduler; \emph{priority + swap} is strict priority with preemption at
+\maxseqs{} and swapped victims, i.e.\ what the \#40004 PRs add; \emph{ours} is the
+saturation-triggered MLFQ of \S\ref{sec:design} with mixed batching.
 
 \begin{table}[t]
 \centering
 \small
-\caption{Main results, mean of three seeds. Throughput is relative to \fcfs{} in the same scenario.}
+\caption{Results, mean of three seeds. Throughput is relative to \fcfs{} in the same scenario.}
 \label{tab:main}
 \begin{tabular}{llrrrrr}
 \toprule
 scenario & scheduler & TTFT p50 & TTFT p99 & agent e2e p50 & tok/s & vs \fcfs{} \\
 \midrule
-\multirow{5}{*}{batch-cap}
- & \fcfs{}               & 280\,ms & 675\,ms & 1.25\,s & 1935 & --- \\
- & priority-swap         & 25\,ms  & 42\,ms  & 1.28\,s & 1860 & $-3.9$\% \\
- & MLFQ\,v1              & 45\,ms  & 92\,ms  & 1.34\,s & 1817 & $-6.1$\% \\
- & \vtwo{}               & 26\,ms  & 43\,ms  & 1.29\,s & 1869 & $-3.4$\% \\
- & \vtwo{} + mixed       & \textbf{23\,ms} & \textbf{37\,ms} & 1.19\,s & 1933 & $-0.1$\% \\
+\multirow{3}{*}{batch-cap}
+ & \fcfs{}          & 280\,ms & 675\,ms & 1.25\,s & 1935 & --- \\
+ & priority + swap  & 25\,ms  & 42\,ms  & 1.28\,s & 1860 & $-3.9$\% \\
+ & ours             & \textbf{23\,ms} & \textbf{37\,ms} & 1.19\,s & 1933 & $-0.1$\% \\
 \midrule
 \multirow{3}{*}{no-priority}
- & \fcfs{}               & 257\,ms & 562\,ms & 1.23\,s & 1924 & --- \\
- & priority-swap         & 283\,ms & 665\,ms & 1.24\,s & 1907 & $-0.9$\% \\
- & \vtwo{} + mixed       & \textbf{24\,ms} & \textbf{39\,ms} & 1.19\,s & 1923 & $-0.1$\% \\
+ & \fcfs{}          & 257\,ms & 562\,ms & 1.23\,s & 1924 & --- \\
+ & priority + swap  & 283\,ms & 665\,ms & 1.24\,s & 1907 & $-0.9$\% \\
+ & ours             & \textbf{24\,ms} & \textbf{39\,ms} & 1.19\,s & 1923 & $-0.1$\% \\
 \midrule
-\multirow{2}{*}{kv-pressure}
- & \fcfs{}               & 270\,ms & 1101\,ms & 1.30\,s & 1848 & --- \\
- & \vtwo{} + mixed       & \textbf{28\,ms} & \textbf{143\,ms} & 1.28\,s & 1834 & $-0.8$\% \\
+\multirow{3}{*}{kv-pressure}
+ & \fcfs{}          & 270\,ms & 1101\,ms & 1.30\,s & 1848 & --- \\
+ & priority + swap  & 28\,ms  & 146\,ms  & 1.38\,s & 1789 & $-3.2$\% \\
+ & ours             & \textbf{28\,ms} & \textbf{143\,ms} & 1.28\,s & 1834 & $-0.8$\% \\
 \midrule
 \multirow{2}{*}{normal}
- & \fcfs{}               & 29\,ms & 34\,ms & 0.79\,s & 836 & --- \\
- & \vtwo{} + mixed       & 30\,ms & 40\,ms & 0.81\,s & 836 & $+0.1$\% \\
+ & \fcfs{}          & 29\,ms & 34\,ms & 0.79\,s & 836 & --- \\
+ & ours             & 30\,ms & 40\,ms & 0.81\,s & 836 & $+0.1$\% \\
 \midrule
 \multirow{2}{*}{all-short}
- & \fcfs{}               & 10.7\,s & 20.8\,s & --- & 1482 & --- \\
- & \vtwo{} + mixed       & 9.2\,s  & 17.9\,s & --- & 1554 & $+4.8$\% \\
+ & \fcfs{}          & 10.7\,s & 20.8\,s & --- & 1482 & --- \\
+ & ours             & 9.2\,s  & 17.9\,s & --- & 1554 & $+4.8$\% \\
 \bottomrule
 \end{tabular}
 \end{table}
 
-\paragraph{Main results.} Table~\ref{tab:main} and Figure~\ref{fig:scenarios} summarise the
-comparison. With a full batch, \vtwo{} with mixed batching lowers chat TTFT p99 from 675\,ms to
-37\,ms (18$\times$) when chat has priority, and from 562\,ms to 39\,ms (14$\times$) when nobody sets
-priorities, where priority scheduling does nothing (665\,ms). Throughput is within 0.1\% of the
-original scheduler, agent turns are 3--5\% faster, and no KV cache is copied. Under normal load and
-in all-short it never preempts. Under KV pressure chat p99 drops from 1\,101\,ms to 143\,ms at 0.8\%
-throughput; evictions there still need swapping. Figure~\ref{fig:mixed} shows that mixed batching
-raises every scheduler's throughput by about 3\% and is what closes MLFQ's remaining gap.
+\paragraph{Full batch.} With every slot taken by agents (Figure~\ref{fig:results}), our scheduler
+lowers chat TTFT p99 from 675\,ms to 37\,ms (18$\times$) when chat has priority and from 562\,ms to
+39\,ms (14$\times$) when nobody sets priorities. Priority + swap reaches similar latency only when
+priorities are set (42\,ms) and does nothing without them (665\,ms); it also loses 3.9\% throughput
+and copies about 135 KV caches to host memory per run. Ours stays within 0.1\% of \fcfs{}'s
+throughput, makes agent turns 3--5\% faster, and copies nothing: all of its roughly 125 preemptions
+per run are pauses.
+
+\paragraph{No saturation.} Under normal load and with only short requests our scheduler never
+preempts (zero preemptions in every run) and matches \fcfs{}'s throughput under normal load
+(Figure~\ref{fig:normal}). The 4.8\% gain with only short requests comes from mixed batching, which
+gives \fcfs{} the same gain.
+
+\paragraph{KV pressure.} With free slots there is no admission preemption; ordering by size and
+choosing the largest victim when decode runs out of blocks lowers chat TTFT p99 from 1\,101\,ms to
+143\,ms at 0.8\% throughput. Here evictions do need their blocks, so they are swapped.
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=\linewidth]{figures/scenario-batch-cap.png}\\[4pt]
-\includegraphics[width=\linewidth]{figures/scenario-no-priority.png}
-\caption{All schedulers with a full batch, with priorities (top) and without (bottom); mean of
-three seeds, whiskers min--max, factors relative to \fcfs{}.}
-\label{fig:scenarios}
+\includegraphics[width=\linewidth]{figures/results-batch-cap.png}\\[4pt]
+\includegraphics[width=\linewidth]{figures/results-no-priority.png}
+\caption{Full batch, with priorities (top) and without (bottom). Mean of three seeds, whiskers
+min--max, factors relative to \fcfs{}.}
+\label{fig:results}
 \end{figure}
 
 \begin{figure}[t]
 \centering
-\includegraphics[width=0.85\linewidth]{figures/mixed.png}
-\caption{Each scheduler with separate prefill steps (left point) and with mixed batching (right
-point), mean of three seeds.}
-\label{fig:mixed}
+\includegraphics[width=\linewidth]{figures/results-normal.png}
+\caption{Normal load: the batch never fills, our scheduler never preempts and behaves like \fcfs{}.}
+\label{fig:normal}
 \end{figure}
 
 \paragraph{Limitations.} One small model on one GPU, a synthetic workload, 45\,s runs and three
-seeds (single runs vary by about $\pm2$--$3\%$). Against \fcfs{} \emph{with} mixed batching, \vtwo{}
-is still about 3\% lower in throughput with a full batch, which we see as the inherent trade of giving
-slots to short requests. Without mixed batching, \vtwo{} is 2--4\% slower than \fcfs{} in all-short
-despite identical decisions; the cause is not scheduler CPU time and remains open. Porting to vLLM
+seeds (single runs vary by about $\pm2$--$3\%$). Mixed batching also speeds up \fcfs{} itself
+(+3\% with a full batch); against that stronger baseline our scheduler is about 3\% lower in
+throughput, which we see as the inherent trade of giving slots to short requests. Porting to vLLM
 needs the size-based rank, the eviction rules and a paused state at the \maxseqs{} check that the
 \#40004 PRs patch, plus handling of LoRA, speculative decoding and pipeline parallelism, which our
 prototype does not cover.
