@@ -13,7 +13,7 @@ docker run --rm --gpus all %IMAGE% python -c "import torch, flash_attn; print(to
 if errorlevel 1 goto fail
 
 rem 2. Download the model to the host folder (skipped if already there). Uses the image's Python, so no host Python is needed.
-if exist "%MODEL_DIR%\config.json" goto model_ready
+if exist "%MODEL_DIR%\model.safetensors" goto model_ready
 mkdir "%MODEL_DIR%" 2>nul
 docker run --rm -v "%MODEL_DIR%:/models/Qwen3-0.6B" %IMAGE% python -c "from huggingface_hub import snapshot_download; snapshot_download('Qwen/Qwen3-0.6B', local_dir='/models/Qwen3-0.6B')"
 if errorlevel 1 goto fail
