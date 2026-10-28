@@ -86,12 +86,116 @@ priorities: it already tells a short chat from a 6000-token agent context.
 
 ## Recommended configuration
 
+MLFQ v2 (see [below](#mlfq-v2-preemption-that-costs-almost-nothing)):
+
 ```python
 LLM(model, scheduling_policy="mlfq", mlfq_level_tokens=(1024, 4096, 8192),
-    aging_steps=200, min_resident_steps=4, preempt_after_steps=8,
-    preemption_mode="auto", swap_space=4, swap_min_tokens=256)
+    aging_steps=200, min_resident_steps=4, preempt_after_steps=0,
+    preemption_mode="auto", swap_space=4, swap_min_tokens=256,
+    pause_victims=True, mlfq_preempt_max_level=0, preempt_min_remaining_tokens=16)
 llm.generate(prompts, SamplingParams(priority=0))    # lower value = more important
 ```
+
+All three new options default to off, and `scheduling_policy="fcfs"` (the default) never
+reaches any of the new code, so nano-vllm's original behaviour is unchanged unless MLFQ is
+asked for.
+
+## MLFQ v2: preemption that costs (almost) nothing
+
+The first version (v1, the results in the next section) already cut chat latency about 9x
+once the batch was full, but it paid for it: 2-6% throughput and 3-7% slower agent turns. Looking at where that cost came from gave five separate causes, and each has a fix
+that removes the cost without giving up the latency win.
+
+| # | cause in v1 | fix in v2 | option |
+|---|---|---|---|
+| 1 | With a long queue, every scheduler step re-sorted the whole waiting queue and walked it once to age every request. With 500 requests waiting that is 109 us of Python per step against 5 us for fcfs, several percent of a 3-4 ms decode step. It even showed up with **no preemption at all**. | Re-sort only when the order can actually have changed (a newcomer ranks ahead of the tail, a preemption, an aging promotion). Aging uses one global step counter and files each request under the step it is next due, so a step only touches the requests that age on it. 15 us per step. Decisions are identical to v1 (checked step by step on 300 random workloads). | always on |
+| 2 | Every eviction copied the victim's whole KV cache to host memory and back (about 2k tokens per agent), even though the batch-full case has **plenty of free GPU KV**: only the batch slot was short. The copies are queued on the compute stream, so they delay the forward pass. | **Pause** the victim instead: it leaves the batch but keeps its KV blocks on the GPU, and resumes with no copy and no recompute. Its blocks are only swapped out (or dropped) if something actually needs them: a newcomer that would not fit otherwise, a decode step that runs out of blocks, or a swap-in. Idle paused blocks are always taken before a running sequence is evicted. | `pause_victims=True` |
+| 3 | Any request of strictly better rank could evict. A new agent turn at level 1 evicted an agent at level 3, and an evicted agent that aged back up evicted another agent: one long request swapped for another, no latency gained for anyone, a copy paid each time. | Only **fresh short requests** evict: a request that has never been preempted and is in level 0. Everyone else still gets the best free slot, but never takes one by force. | `mlfq_preempt_max_level=0` |
+| 4 | A newcomer waited `preempt_after_steps=8` steps before evicting, in case a slot freed up on its own. With agents holding all slots that rarely happens within 8 steps, so it mostly added about 20 ms to every chat request. | No wait. Churn is still prevented by `min_resident_steps`, and with pausing an eviction is cheap anyway. | `preempt_after_steps=0` |
+| 5 | A runner a few tokens from its end could be evicted, paying the eviction and the resume to save almost nothing. This is also the request that crosses a level boundary just before it finishes. | Runners with fewer than 16 tokens left before `max_tokens` are never evicted for a newcomer. | `preempt_min_remaining_tokens=16` |
+
+What stays the same: while the batch has free slots nothing is ever preempted; equal ranks never
+evict each other; a request that does not fit in the KV cache waits exactly as in fcfs; when
+the KV cache, not the batch, is full, the worst-ranked sequence is still the one evicted.
+
+**Only short requests.** If every request is short, they all sit in level 0 with the same rank,
+and the strictly-better-rank rule means nobody can evict anybody: MLFQ admits in arrival order,
+exactly like fcfs, with zero preemptions. The `all-short` scenario below checks this.
+
+### MLFQ v2 results
+
+Same machine, model and workload as below, 45 s of arrivals per run, **3 seeds per
+configuration** (the v1 results further down are single runs). `GPU=3 V1_TREE=... scripts/run_mlfq_v2_bench.sh all`;
+raw numbers in `results/mlfq_v2_bench.jsonl`, charts and table from `python -m benchmarks.plot_ablation`.
+"MLFQ v1" runs the original v1 code; every column after it adds one improvement on top of the
+previous one, so each step of a line is the effect of one fix. `all-short` is open-loop chat only
+(40 requests/s into 8 slots, more than the GPU can serve, so the queue keeps growing).
+
+![MLFQ v2 ablation](img/ablation.png)
+
+![damage vs fcfs](img/ablation_cost.png)
+
+Mean of 3 seeds:
+
+| scenario | config | chat TTFT p50 | chat TTFT p99 | chat e2e p99 | agent e2e p50 | tok/s | preempt | paused | swapped out |
+|---|---|---|---|---|---|---|---|---|---|
+| batch-cap | fcfs | 280 ms | 675 ms | 1.07 s | 1.25 s | 1935 | 0 | 0 | 0 |
+| batch-cap | priority-swap | 25 ms | 42 ms | 0.54 s | 1.28 s | 1860 | 135 | 0 | 135 |
+| batch-cap | mlfq-v1 | 45 ms | 92 ms | 0.61 s | 1.34 s | 1817 | 173 | 0 | 173 |
+| batch-cap | +low-overhead | 43 ms | 82 ms | 0.56 s | 1.30 s | 1852 | 169 | 0 | 169 |
+| batch-cap | +pause | 43 ms | 74 ms | 0.55 s | 1.27 s | 1880 | 172 | 172 | 0 |
+| batch-cap | +short-only | 44 ms | 94 ms | 0.55 s | 1.27 s | 1860 | 97 | 97 | 0 |
+| batch-cap | +no-wait | 24 ms | 42 ms | 0.52 s | 1.30 s | 1857 | 132 | 132 | 0 |
+| batch-cap | **mlfq-v2** | **26 ms** | **43 ms** | 0.54 s | 1.29 s | 1869 | 130 | 130 | **0** |
+| no-priority | fcfs | 257 ms | 562 ms | 0.91 s | 1.23 s | 1924 | 0 | 0 | 0 |
+| no-priority | priority-swap | 283 ms | 665 ms | 0.98 s | 1.24 s | 1907 | 0 | 0 | 0 |
+| no-priority | mlfq-v1 | 42 ms | 79 ms | 0.53 s | 1.26 s | 1888 | 170 | 0 | 170 |
+| no-priority | +low-overhead | 44 ms | 76 ms | 0.55 s | 1.29 s | 1840 | 175 | 0 | 175 |
+| no-priority | +pause | 43 ms | 79 ms | 0.54 s | 1.25 s | 1870 | 162 | 162 | 0 |
+| no-priority | +short-only | 43 ms | 73 ms | 0.54 s | 1.27 s | 1882 | 94 | 94 | 0 |
+| no-priority | +no-wait | 24 ms | 44 ms | 0.53 s | 1.24 s | 1868 | 132 | 132 | 0 |
+| no-priority | **mlfq-v2** | **25 ms** | **48 ms** | 0.54 s | 1.28 s | 1859 | 135 | 135 | **0** |
+| kv-pressure | fcfs | 270 ms | 1101 ms | 1.35 s | 1.30 s | 1848 | 60 | 0 | 0 |
+| kv-pressure | priority-swap | 28 ms | 146 ms | 0.65 s | 1.38 s | 1789 | 133 | 0 | 133 |
+| kv-pressure | mlfq-v1 | 30 ms | 161 ms | 0.61 s | 1.36 s | 1780 | 113 | 0 | 113 |
+| kv-pressure | mlfq-v2 | 29 ms | 168 ms | 0.58 s | 1.35 s | 1776 | 125 | 0 | 125 |
+| normal | fcfs | 29 ms | 34 ms | 0.40 s | 0.79 s | 836 | 0 | 0 | 0 |
+| normal | mlfq-v1 | 31 ms | 47 ms | 0.42 s | 0.83 s | 830 | 0 | 0 | 0 |
+| normal | mlfq-v2 | 31 ms | 51 ms | 0.41 s | 0.82 s | 829 | 0 | 0 | 0 |
+| all-short | fcfs | 10.7 s | 20.8 s | 21.1 s | - | 1482 | 0 | 0 | 0 |
+| all-short | mlfq-v1 | 12.6 s | 25.2 s | 25.5 s | - | 1391 | 0 | 0 | 0 |
+| all-short | +low-overhead | 11.9 s | 22.4 s | 22.7 s | - | 1447 | 0 | 0 | 0 |
+| all-short | mlfq-v2 | 12.2 s | 23.7 s | 24.0 s | - | 1421 | 0 | 0 | 0 |
+
+(The middle kv-pressure stages are in the JSONL; with free slots they change nothing there.)
+
+What each step did, as measured:
+
+* **Low-overhead queue**: with a long queue (`all-short`) v1 lost 6.1% throughput to fcfs while
+  making exactly the same decisions (identical step counts); the fix brings that to 2.4%.
+* **Pause**: every KV copy is gone (about 170 swap-outs and as many swap-ins per run, 0 now) and
+  throughput goes up about 1.5% in both batch-full scenarios; agent turns get slightly faster.
+* **Only short newcomers evict**: 44% fewer preemptions (172 -> 97) for the same chat latency;
+  the removed ones were agents evicting agents.
+* **No wait**: chat TTFT p50 44 -> 24 ms and p99 about 80 -> 43 ms, for no measurable throughput
+  (1860 -> 1857 tok/s; with pausing an eviction is cheap, so waiting bought nothing).
+* **Spare nearly finished runners**: neutral here, as expected (few chats are evicted within 16
+  tokens of their end); it only guards the boundary case.
+
+Net, with the batch full: **MLFQ v2 gets chat in as fast as strict priority scheduling (p99 43
+vs 42 ms, 16x better than fcfs), also when no priorities are set at all (48 ms, where priority
+scheduling is no better than fcfs), with no KV copying, 3% slower agent turns (v1: 7%) and 3.4%
+less throughput than fcfs (v1: 6.1% in batch-cap).** Without saturation (normal load, only-short
+requests) it never preempts. Under KV pressure v2 behaves like v1: with free slots there is no
+admission preemption, and decode-time evictions still have to swap.
+
+**Open question.** In `all-short` MLFQ makes the same decisions and runs the same number of
+steps as fcfs, yet is still 2-4% slower. Its scheduler now costs about 8 us more per step than
+fcfs on that workload (measured with the real queue sizes), roughly 0.15% of a 5.5 ms step, so
+the remaining gap is outside the scheduler. Suspects: fcfs always runs first in each group of
+runs, and only the MLFQ configurations pin 4 GiB of host memory for swap space. Both are
+cheap to test and are next.
+
 
 ## Results
 
@@ -171,3 +275,8 @@ nano-vllm's compiled RMSNorm and also appears with fcfs.
   aging, and a randomized workload checking block accounting invariants across all policies.
 * `tests/gpu/test_swap_gpu.py`: swapping blocks out and back is bit-exact, and a request that
   is swapped out mid-generation produces exactly the same greedy tokens as an undisturbed run.
+* MLFQ v2: CPU tests for pausing (no copy, resume, lazy reclaim before evicting a runner) and the
+  preemption limits; the randomized workload also randomizes the new options (20 seeds per
+  policy and mode). The GPU test checks a paused-and-resumed request against an undisturbed run
+  (bit-exact). The low-overhead queue was checked step by step against the v1 scheduler on 300
+  random workloads: identical decisions.
