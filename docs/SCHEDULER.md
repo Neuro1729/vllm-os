@@ -96,7 +96,9 @@ LLM(model, scheduling_policy="mlfq", mlfq_level_tokens=(1024, 4096, 8192),
 llm.generate(prompts, SamplingParams(priority=0))    # lower value = more important
 ```
 
-All three new options default to off, and `scheduling_policy="fcfs"` (the default) never
+For the lowest cost add `mixed_batching=True` (see [Mixed batching](#mixed-batching)).
+
+All new options default to off, and `scheduling_policy="fcfs"` (the default) never
 reaches any of the new code, so nano-vllm's original behaviour is unchanged unless MLFQ is
 asked for.
 
@@ -190,11 +192,11 @@ requests) it never preempts. Under KV pressure v2 behaves like v1: with free slo
 admission preemption, and decode-time evictions still have to swap.
 
 **Open question.** In `all-short` MLFQ makes the same decisions and runs the same number of
-steps as fcfs, yet is still 2-4% slower. Its scheduler now costs about 8 us more per step than
-fcfs on that workload (measured with the real queue sizes), roughly 0.15% of a 5.5 ms step, so
-the remaining gap is outside the scheduler. Suspects: fcfs always runs first in each group of
-runs, and only the MLFQ configurations pin 4 GiB of host memory for swap space. Both are
-cheap to test and are next.
+steps as fcfs, yet is 2-4% slower. Its scheduler costs only about 8 us more per step than fcfs
+on that workload, roughly 0.15% of a 5.5 ms step, so the gap is not scheduler CPU time; the root
+cause is not identified. It disappears with mixed batching (below): there MLFQ v2 runs at 1554
+vs 1558 tok/s for fcfs, with the same run order, and priority-swap, which pins the same 4 GiB of
+swap space as MLFQ, also matches fcfs (1555), so neither run order nor the pinned memory is it.
 
 
 ## Results
@@ -269,6 +271,74 @@ Single 60 s run per configuration, so differences of a few percent are within no
 The `torch._dynamo hit config.recompile_limit` warning in the logs comes from upstream
 nano-vllm's compiled RMSNorm and also appears with fcfs.
 
+## Mixed batching
+
+nano-vllm runs every step either as a prefill or as a decode: while a new request is prefilled,
+nobody in the batch decodes. Each admission therefore stalls the whole batch for a step, and
+MLFQ admits short requests more often than fcfs does, which is where most of v2's remaining
+throughput cost came from. vLLM (v1) instead puts decodes and new prefills, or chunks of them,
+in the same step. `mixed_batching=True` does the same:
+
+* Each step first reserves one token per running sequence, then fills the rest of the
+  `max_num_batched_tokens` budget with prefills in queue order; the last one is chunked if it does
+  not fit, and the chunk stays at the head of the queue (as in fcfs).
+* Mixed steps go through the existing variable-length prefill path: a decode is a one-token query
+  over its paged KV cache, so the attention kernel and the logits selection need no change. Pure
+  decode steps still replay CUDA graphs.
+* Off by default; with it off the scheduler's decisions are unchanged (checked step by step
+  against v1 on 300 random workloads).
+
+```python
+LLM(model, ..., mixed_batching=True)
+```
+
+`scripts/run_mixed_bench.sh` runs fcfs, priority-swap and MLFQ v2 with mixed batching on the same
+scenarios and seeds as above (3 seeds, 45 s each); the runs without it are the ones from the MLFQ
+v2 section. Raw numbers in `results/mixed_bench.jsonl`, chart from `python -m benchmarks.plot_mixed`.
+
+![mixed batching](img/mixed.png)
+
+Mean of 3 seeds; "vs fcfs" is throughput relative to nano-vllm's original scheduler (fcfs,
+separate prefill steps) in the same scenario:
+
+| scenario | config | chat TTFT p50 | chat TTFT p99 | chat e2e p99 | agent e2e p50 | tok/s | vs fcfs | KV swaps |
+|---|---|---|---|---|---|---|---|---|
+| batch-cap | fcfs | 280 ms | 675 ms | 1.07 s | 1.25 s | 1935 | +0.0% | 0 |
+| batch-cap | mlfq-v2 | 26 ms | 43 ms | 0.54 s | 1.29 s | 1869 | -3.4% | 0 |
+| batch-cap | fcfs+mixed | 259 ms | 586 ms | 0.92 s | 1.19 s | 1993 | +3.0% | 0 |
+| batch-cap | priority-swap+mixed | 24 ms | 38 ms | 0.51 s | 1.22 s | 1930 | -0.3% | 131 |
+| batch-cap | **mlfq-v2+mixed** | **23 ms** | **37 ms** | 0.51 s | **1.19 s** | **1933** | **-0.1%** | **0** |
+| no-priority | fcfs | 257 ms | 562 ms | 0.91 s | 1.23 s | 1924 | +0.0% | 0 |
+| no-priority | mlfq-v2 | 25 ms | 48 ms | 0.54 s | 1.28 s | 1859 | -3.4% | 0 |
+| no-priority | fcfs+mixed | 263 ms | 630 ms | 1.02 s | 1.22 s | 1976 | +2.7% | 0 |
+| no-priority | priority-swap+mixed | 261 ms | 630 ms | 0.99 s | 1.23 s | 1957 | +1.7% | 0 |
+| no-priority | **mlfq-v2+mixed** | **24 ms** | **39 ms** | 0.51 s | **1.19 s** | **1923** | **-0.1%** | **0** |
+| kv-pressure | fcfs | 270 ms | 1101 ms | 1.35 s | 1.30 s | 1848 | +0.0% | 0 |
+| kv-pressure | mlfq-v2 | 29 ms | 168 ms | 0.58 s | 1.35 s | 1776 | -3.9% | 125 |
+| kv-pressure | fcfs+mixed | 228 ms | 1095 ms | 1.31 s | 1.27 s | 1896 | +2.6% | 0 |
+| kv-pressure | priority-swap+mixed | 29 ms | 161 ms | 0.57 s | 1.32 s | 1840 | -0.4% | 107 |
+| kv-pressure | mlfq-v2+mixed | 28 ms | 143 ms | 0.57 s | 1.28 s | 1834 | -0.8% | 144 |
+| normal | fcfs | 29 ms | 34 ms | 0.40 s | 0.79 s | 836 | +0.0% | 0 |
+| normal | mlfq-v2+mixed | 30 ms | 40 ms | 0.41 s | 0.81 s | 836 | +0.1% | 0 |
+| all-short | fcfs | 10.7 s | 20.8 s | 21.1 s | - | 1482 | +0.0% | 0 |
+| all-short | mlfq-v2 | 12.2 s | 23.7 s | 24.0 s | - | 1421 | -4.1% | 0 |
+| all-short | fcfs+mixed | 9.2 s | 17.7 s | 17.9 s | - | 1558 | +5.1% | 0 |
+| all-short | mlfq-v2+mixed | 9.2 s | 17.9 s | 18.1 s | - | 1554 | +4.8% | 0 |
+
+What it shows:
+
+* **MLFQ v2 + mixed batching costs nothing against nano-vllm's original scheduler**: with the
+  batch full, throughput is within 0.1% of fcfs while chat TTFT p99 drops from about 600 ms to
+  37-39 ms (14-18x), agent turns are 3-5% *faster* (1.19 s vs 1.23-1.25 s), and nothing is copied. Without
+  priorities it is the only configuration that helps chat at all.
+* Mixed batching helps every policy's throughput (fcfs about +3%, MLFQ v2 +3.4%, priority-swap
+  +3.8% with the batch full): admissions no longer stall the batch, and MLFQ admits often.
+* Against fcfs *with* mixed batching MLFQ v2 is still about 3% lower in throughput when the batch is
+  full. That part is the actual trade: a chat that takes a slot generates fewer tokens per step
+  than the agent it pauses. With no saturation (normal load, only short requests) the two are equal.
+* Under KV pressure mixed batching also closes most of the gap (-0.8% vs fcfs instead of -3.9%),
+  but evictions there still have to swap, as expected.
+
 ### Correctness
 
 * `tests/test_priority_scheduling.py` (CPU): preemption rules, swap bookkeeping, MLFQ levels,
@@ -280,3 +350,8 @@ nano-vllm's compiled RMSNorm and also appears with fcfs.
   policy and mode). The GPU test checks a paused-and-resumed request against an undisturbed run
   (bit-exact). The low-overhead queue was checked step by step against the v1 scheduler on 300
   random workloads: identical decisions.
+* Mixed batching: CPU tests that running sequences keep decoding while a newcomer prefills and that
+  a long prompt is chunked next to them; the randomized workload runs with mixed batching on for
+  40 more seeds per policy and all modes (this found a deadlock, now fixed: a decode-time fcfs
+  victim was queued in front of a chunked prefill in progress). The GPU test checks that a mixed
+  step produces the same greedy tokens as running each request alone.

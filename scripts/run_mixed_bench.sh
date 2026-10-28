@@ -24,6 +24,7 @@ trap 'echo "interrupted, stopping current run"; [ -n "$child" ] && kill -TERM "$
 
 run() {
     local label=$1; shift
+    if grep -qF "\"label\": \"$label\"" "$OUT" 2>/dev/null; then echo "--- $label already done"; return; fi
     echo "=== $label"
     timeout --signal=TERM --kill-after=60 "$RUN_TIMEOUT" \
         "$PYTHON" -m benchmarks.priority_bench --label "$label" --out "$OUT" --duration "$DURATION" "$@" &
