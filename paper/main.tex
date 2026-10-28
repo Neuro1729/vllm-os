@@ -14,6 +14,7 @@
 \usepackage{enumitem}
 \usepackage{algorithm}
 \usepackage{algpseudocode}
+\usepackage{pifont}
 \usepackage{tikz}
 \usetikzlibrary{arrows.meta,positioning,shapes.geometric}
 \usepackage[colorlinks=true,linkcolor=blue!50!black,citecolor=blue!50!black,urlcolor=blue!50!black]{hyperref}
@@ -203,7 +204,81 @@ and reserves idle KV slots for bursts of new jobs~\cite{fastserve-nsdi}. Its mot
 Our position is that once continuous batching exists, two of FastServe's premises weaken. A request
 that is not in a full batch is not blocked by anyone, so preempting it gains nothing; and a request
 that finishes leaves the batch immediately, so the head-of-line blocking that remains is precisely
-the saturated case. Table~\ref{tab:compare} contrasts the two designs.
+the saturated case. Figure~\ref{fig:fastserve-vs-ours} illustrates the difference and
+Table~\ref{tab:compare} summarises it.
+
+\begin{figure}[t]
+\centering
+\begin{subfigure}[t]{0.49\linewidth}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+  q/.style={draw, minimum width=3.6cm, minimum height=0.55cm, fill=gray!8},
+  job/.style={draw, fill=#1, minimum width=0.42cm, minimum height=0.36cm, inner sep=0pt},
+  ar/.style={-{Stealth[length=2mm]}, thick},
+  lb/.style={font=\scriptsize, align=center}]
+% queues
+\foreach \i/\n in {0/1,1/2,2/3,3/n} {
+  \node[q] (Q\n) at (0,-0.75*\i) {};
+  \node[font=\small, anchor=east] at (Q\n.west) {$Q_{\n}$\,};
+}
+\node[font=\scriptsize, anchor=south] at (Q1.north) {higher priority, shorter quantum};
+% jobs in queues
+\node[job=orange!40] at ([xshift=-1.4cm]Q1.center) {};
+\node[job=orange!40] at ([xshift=-0.9cm]Q1.center) {};
+\node[job=blue!30]   at ([xshift=-1.4cm]Q2.center) {};
+\node[job=blue!30]   at ([xshift=-1.4cm]Q3.center) {};
+\node[job=blue!30]   at ([xshift=-0.9cm]Q3.center) {};
+\node[job=blue!30]   at ([xshift=-1.4cm]Qn.center) {};
+% skip-join arrival
+\node[lb, anchor=east] (arr) at (-2.6,-1.5) {new job\\(prefill time\\$\le q_i$)};
+\draw[ar] (arr.east) -- node[lb, above, sloped] {\ding{172}} ([xshift=-0.3cm]Q3.west);
+% demotion
+\draw[ar] ([xshift=0.25cm]Q1.east) -- node[lb, right] {\ding{173} quantum\\used up:\\demote} ([xshift=0.25cm]Qn.east);
+% promotion
+\draw[ar, dashed] ([xshift=-1.0cm, yshift=-0.05cm]Qn.south) to[bend left=50] node[lb, below, pos=0.25] {\ding{174} starved: promote to $Q_1$} ([xshift=-2.3cm]Q1.west);
+% batch selection
+\node[draw, rounded corners, fill=green!12, lb, minimum width=3.6cm] (batch) at (0,-4.2) {every iteration: run the top\\\texttt{MaxBatchSize} jobs of $Q_1 \ldots Q_n$};
+\draw[ar] (Qn.south) -- (batch.north);
+\node[draw, rounded corners, fill=red!10, lb, minimum width=3.6cm] (host) at (0,-5.5) {all other jobs preempted;\\KV proactively swapped to host\\(peak KV up to $7\times$ \textsc{fcfs})};
+\draw[ar] (batch.south) -- (host.north);
+\end{tikzpicture}}
+\caption{FastServe's skip-join MLFQ, adapted from Wu et al.~\cite{fastserve-nsdi} (Fig.~6 and
+Algorithm~1). Ranking, demotion and preemption happen at every iteration.}
+\label{fig:fastserve}
+\end{subfigure}\hfill
+\begin{subfigure}[t]{0.49\linewidth}
+\centering
+\resizebox{\linewidth}{!}{%
+\begin{tikzpicture}[
+  dec/.style={draw, diamond, aspect=2.4, fill=gray!8, font=\scriptsize, align=center, inner sep=1pt},
+  box/.style={draw, rounded corners, font=\scriptsize, align=center, minimum width=3.0cm, minimum height=0.8cm},
+  ar/.style={-{Stealth[length=2mm]}, thick},
+  lb/.style={font=\scriptsize}]
+\node[box, fill=blue!8] (new) at (0,0) {head of the waiting queue\\(ranked by size: prompt + generated)};
+\node[dec, below=0.45cm of new] (full) {batch full?\\$|\text{running}| = \maxseqs$};
+\node[box, fill=green!12, right=0.6cm of full] (cb) {admit as continuous\\batching: \textbf{no preemption}};
+\node[dec, below=0.55cm of full] (fresh) {fresh request\\in level 0?};
+\node[box, fill=gray!10, right=0.6cm of fresh] (wait) {wait for a free slot\\(never forces one)};
+\node[box, fill=orange!15, below=0.55cm of fresh] (pause) {\textbf{pause} worst-ranked runner\\(strictly worse rank, not about\\to finish): KV stays on GPU};
+\node[box, fill=red!8, below=0.4cm of pause] (lazy) {KV swapped / dropped only if\\its blocks are actually needed};
+\draw[ar] (new) -- (full);
+\draw[ar] (full) -- node[lb, above] {no} (cb);
+\draw[ar] (full) -- node[lb, right] {yes} (fresh);
+\draw[ar] (fresh) -- node[lb, above] {no} (wait);
+\draw[ar] (fresh) -- node[lb, right] {yes} (pause);
+\draw[ar, dashed] (pause) -- (lazy);
+\end{tikzpicture}}
+\caption{Our saturation-triggered MLFQ. Below saturation it is plain continuous batching; at
+saturation only a fresh short request may pause one runner, without copying its KV cache.}
+\label{fig:ours}
+\end{subfigure}
+\caption{Where preemption happens. FastServe~(a) re-ranks and preempts at every iteration and
+keeps all preempted jobs' KV caches, offloading them to host memory. Our scheduler~(b) leaves
+continuous batching untouched until the batch is full and then preempts only for fresh short
+requests, by pausing.}
+\label{fig:fastserve-vs-ours}
+\end{figure}
 
 \begin{table}[t]
 \centering
