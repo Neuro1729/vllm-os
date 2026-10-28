@@ -155,10 +155,17 @@ def test_v0_command_gets_nanovllm_root_and_others_do_not(tmp_path, monkeypatch):
 # ---------------------------------------------------------------- execution with a stubbed subprocess
 
 def _stub_subprocess(monkeypatch, behaviour):
-    """behaviour(command) returns a CompletedProcess-like result or raises. git calls return code 128."""
+    """behaviour(command) returns a CompletedProcess-like result or raises. git calls return code 128.
+
+    Only trial commands (those with --out-dir) are stubbed. Anything else, such as the
+    `uname -p` call that platform.platform() makes on Linux, runs for real.
+    """
     calls = []
+    real_run = subprocess.run
 
     def fake_run(command, **kwargs):
+        if "--out-dir" not in command and command[0] != "git":
+            return real_run(command, **kwargs)
         calls.append(command)
         if command[0] == "git":
             return subprocess.CompletedProcess(command, 128, stdout="", stderr="")
