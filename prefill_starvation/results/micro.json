@@ -1,0 +1,8612 @@
+[
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "nocap",
+  "queue": "fcfs",
+  "C_ttft_ms": 1127.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 161.1,
+  "C_starved_steps": 23,
+  "B_starved_steps": 9,
+  "B_slowdown": 1.4,
+  "A_slowdown": 1.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.45,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.45,
+    "dt_ms": 35.83,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60070.28,
+    "dt_ms": 37.2,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60107.49,
+    "dt_ms": 38.58,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "nocap",
+  "queue": "priority",
+  "C_ttft_ms": 203.2,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 29.0,
+  "C_starved_steps": 3,
+  "B_starved_steps": 9,
+  "B_slowdown": 1.4,
+  "A_slowdown": 1.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.45,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.45,
+    "dt_ms": 35.83,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60070.28,
+    "dt_ms": 37.2,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60107.49,
+    "dt_ms": 38.58,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "static512",
+  "queue": "fcfs",
+  "C_ttft_ms": 602.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 86.1,
+  "C_starved_steps": 13,
+  "B_starved_steps": 0,
+  "B_slowdown": 1.5,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "static512",
+  "queue": "priority",
+  "C_ttft_ms": 602.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 86.1,
+  "C_starved_steps": 13,
+  "B_starved_steps": 0,
+  "B_slowdown": 1.5,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "adaptive512",
+  "queue": "fcfs",
+  "C_ttft_ms": 602.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 86.1,
+  "C_starved_steps": 13,
+  "B_starved_steps": 0,
+  "B_slowdown": 1.5,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "adaptive512",
+  "queue": "priority",
+  "C_ttft_ms": 602.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 86.1,
+  "C_starved_steps": 13,
+  "B_starved_steps": 0,
+  "B_slowdown": 1.5,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "adaptive512_pf",
+  "queue": "fcfs",
+  "C_ttft_ms": 602.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 86.1,
+  "C_starved_steps": 13,
+  "B_starved_steps": 0,
+  "B_slowdown": 1.4,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "adaptive512_pf",
+  "queue": "priority",
+  "C_ttft_ms": 602.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 86.1,
+  "C_starved_steps": 13,
+  "B_starved_steps": 0,
+  "B_slowdown": 1.4,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "srpt_fix",
+  "queue": "fcfs",
+  "C_ttft_ms": 53.1,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 7.6,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 1.5,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "srpt_fix",
+  "queue": "priority",
+  "C_ttft_ms": 53.1,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 7.6,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 1.5,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "nocap",
+  "queue": "fcfs",
+  "C_ttft_ms": 2634.3,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 376.3,
+  "C_starved_steps": 35,
+  "B_starved_steps": 13,
+  "B_slowdown": 3.1,
+  "A_slowdown": 2.4,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.98,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.36,
+    "dt_ms": 63.76,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60131.12,
+    "dt_ms": 64.55,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60195.67,
+    "dt_ms": 65.33,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "nocap",
+  "queue": "priority",
+  "C_ttft_ms": 747.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 106.8,
+  "C_starved_steps": 9,
+  "B_starved_steps": 13,
+  "B_slowdown": 3.1,
+  "A_slowdown": 2.4,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.98,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.36,
+    "dt_ms": 63.76,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60131.12,
+    "dt_ms": 64.55,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60195.67,
+    "dt_ms": 65.33,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "static512",
+  "queue": "fcfs",
+  "C_ttft_ms": 1202.2,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 171.7,
+  "C_starved_steps": 16,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.5,
+  "A_slowdown": 3.4,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "static512",
+  "queue": "priority",
+  "C_ttft_ms": 1202.2,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 171.7,
+  "C_starved_steps": 16,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.5,
+  "A_slowdown": 3.4,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "adaptive512",
+  "queue": "fcfs",
+  "C_ttft_ms": 1202.2,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 171.7,
+  "C_starved_steps": 16,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.5,
+  "A_slowdown": 3.4,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "adaptive512",
+  "queue": "priority",
+  "C_ttft_ms": 1202.2,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 171.7,
+  "C_starved_steps": 16,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.5,
+  "A_slowdown": 3.4,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "adaptive512_pf",
+  "queue": "fcfs",
+  "C_ttft_ms": 1202.2,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 171.7,
+  "C_starved_steps": 16,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.1,
+  "A_slowdown": 3.4,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "adaptive512_pf",
+  "queue": "priority",
+  "C_ttft_ms": 1202.2,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 171.7,
+  "C_starved_steps": 16,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.1,
+  "A_slowdown": 3.4,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "srpt_fix",
+  "queue": "fcfs",
+  "C_ttft_ms": 122.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 17.5,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.5,
+  "A_slowdown": 3.4,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "srpt_fix",
+  "queue": "priority",
+  "C_ttft_ms": 122.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 17.5,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.5,
+  "A_slowdown": 3.4,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "nocap",
+  "queue": "fcfs",
+  "C_ttft_ms": 4441.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 634.5,
+  "C_starved_steps": 55,
+  "B_starved_steps": 19,
+  "B_slowdown": 5.0,
+  "A_slowdown": 3.9,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "nocap",
+  "queue": "priority",
+  "C_ttft_ms": 1345.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 192.2,
+  "C_starved_steps": 16,
+  "B_starved_steps": 19,
+  "B_slowdown": 5.0,
+  "A_slowdown": 3.9,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "static512",
+  "queue": "fcfs",
+  "C_ttft_ms": 4441.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 634.5,
+  "C_starved_steps": 55,
+  "B_starved_steps": 19,
+  "B_slowdown": 5.0,
+  "A_slowdown": 3.9,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "static512",
+  "queue": "priority",
+  "C_ttft_ms": 1345.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 192.2,
+  "C_starved_steps": 16,
+  "B_starved_steps": 19,
+  "B_slowdown": 5.0,
+  "A_slowdown": 3.9,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "adaptive512",
+  "queue": "fcfs",
+  "C_ttft_ms": 4441.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 634.5,
+  "C_starved_steps": 55,
+  "B_starved_steps": 19,
+  "B_slowdown": 5.0,
+  "A_slowdown": 3.9,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "adaptive512",
+  "queue": "priority",
+  "C_ttft_ms": 1345.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 192.2,
+  "C_starved_steps": 16,
+  "B_starved_steps": 19,
+  "B_slowdown": 5.0,
+  "A_slowdown": 3.9,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "adaptive512_pf",
+  "queue": "fcfs",
+  "C_ttft_ms": 4441.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 634.5,
+  "C_starved_steps": 55,
+  "B_starved_steps": 19,
+  "B_slowdown": 5.0,
+  "A_slowdown": 3.9,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "adaptive512_pf",
+  "queue": "priority",
+  "C_ttft_ms": 1345.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 192.2,
+  "C_starved_steps": 16,
+  "B_starved_steps": 19,
+  "B_slowdown": 5.0,
+  "A_slowdown": 3.9,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "srpt_fix",
+  "queue": "fcfs",
+  "C_ttft_ms": 135.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 19.3,
+  "C_starved_steps": 0,
+  "B_starved_steps": 19,
+  "B_slowdown": 5.0,
+  "A_slowdown": 3.9,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.68,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 1,
+    "alloc": {
+     "C": 20,
+     "A": 492
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "srpt_fix",
+  "queue": "priority",
+  "C_ttft_ms": 135.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 19.3,
+  "C_starved_steps": 0,
+  "B_starved_steps": 19,
+  "B_slowdown": 5.0,
+  "A_slowdown": 3.9,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.68,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 1,
+    "alloc": {
+     "C": 20,
+     "A": 492
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "nocap",
+  "queue": "fcfs",
+  "C_ttft_ms": 9516.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 1359.5,
+  "C_starved_steps": 114,
+  "B_starved_steps": 39,
+  "B_slowdown": 10.5,
+  "A_slowdown": 8.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "nocap",
+  "queue": "priority",
+  "C_ttft_ms": 3012.2,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 430.3,
+  "C_starved_steps": 36,
+  "B_starved_steps": 39,
+  "B_slowdown": 10.5,
+  "A_slowdown": 8.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "static512",
+  "queue": "fcfs",
+  "C_ttft_ms": 9516.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 1359.5,
+  "C_starved_steps": 114,
+  "B_starved_steps": 39,
+  "B_slowdown": 10.5,
+  "A_slowdown": 8.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "static512",
+  "queue": "priority",
+  "C_ttft_ms": 3012.2,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 430.3,
+  "C_starved_steps": 36,
+  "B_starved_steps": 39,
+  "B_slowdown": 10.5,
+  "A_slowdown": 8.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "adaptive512",
+  "queue": "fcfs",
+  "C_ttft_ms": 9516.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 1359.5,
+  "C_starved_steps": 114,
+  "B_starved_steps": 39,
+  "B_slowdown": 10.5,
+  "A_slowdown": 8.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "adaptive512",
+  "queue": "priority",
+  "C_ttft_ms": 3012.2,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 430.3,
+  "C_starved_steps": 36,
+  "B_starved_steps": 39,
+  "B_slowdown": 10.5,
+  "A_slowdown": 8.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "adaptive512_pf",
+  "queue": "fcfs",
+  "C_ttft_ms": 9516.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 1359.5,
+  "C_starved_steps": 114,
+  "B_starved_steps": 39,
+  "B_slowdown": 10.5,
+  "A_slowdown": 8.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "adaptive512_pf",
+  "queue": "priority",
+  "C_ttft_ms": 3012.2,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 430.3,
+  "C_starved_steps": 36,
+  "B_starved_steps": 39,
+  "B_slowdown": 10.5,
+  "A_slowdown": 8.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "srpt_fix",
+  "queue": "fcfs",
+  "C_ttft_ms": 143.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 20.5,
+  "C_starved_steps": 0,
+  "B_starved_steps": 39,
+  "B_slowdown": 10.5,
+  "A_slowdown": 8.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.54,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 1,
+    "alloc": {
+     "C": 20,
+     "A": 236
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "user_example",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "srpt_fix",
+  "queue": "priority",
+  "C_ttft_ms": 143.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 20.5,
+  "C_starved_steps": 0,
+  "B_starved_steps": 39,
+  "B_slowdown": 10.5,
+  "A_slowdown": 8.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.54,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 1,
+    "alloc": {
+     "C": 20,
+     "A": 236
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "nocap",
+  "queue": "fcfs",
+  "C_ttft_ms": 19713.9,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2816.2,
+  "C_starved_steps": 189,
+  "B_starved_steps": 97,
+  "B_slowdown": 2.0,
+  "A_slowdown": 1.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.45,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.45,
+    "dt_ms": 35.83,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60070.28,
+    "dt_ms": 37.2,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60107.49,
+    "dt_ms": 38.58,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "nocap",
+  "queue": "priority",
+  "C_ttft_ms": 9659.3,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 1379.9,
+  "C_starved_steps": 91,
+  "B_starved_steps": 97,
+  "B_slowdown": 2.0,
+  "A_slowdown": 1.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.45,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.45,
+    "dt_ms": 35.83,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60070.28,
+    "dt_ms": 37.2,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60107.49,
+    "dt_ms": 38.58,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 1024
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "static512",
+  "queue": "fcfs",
+  "C_ttft_ms": 19496.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2785.1,
+  "C_starved_steps": 189,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "static512",
+  "queue": "priority",
+  "C_ttft_ms": 19496.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2785.1,
+  "C_starved_steps": 189,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "adaptive512",
+  "queue": "fcfs",
+  "C_ttft_ms": 19496.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2785.1,
+  "C_starved_steps": 189,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "adaptive512",
+  "queue": "priority",
+  "C_ttft_ms": 19496.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2785.1,
+  "C_starved_steps": 189,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "adaptive512_pf",
+  "queue": "fcfs",
+  "C_ttft_ms": 19496.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2785.1,
+  "C_starved_steps": 189,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "adaptive512_pf",
+  "queue": "priority",
+  "C_ttft_ms": 19496.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2785.1,
+  "C_starved_steps": 189,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "srpt_fix",
+  "queue": "fcfs",
+  "C_ttft_ms": 53.1,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 7.6,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 0,
+  "cap_policy": "srpt_fix",
+  "queue": "priority",
+  "C_ttft_ms": 53.1,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 7.6,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "nocap",
+  "queue": "fcfs",
+  "C_ttft_ms": 29827.0,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 4260.8,
+  "C_starved_steps": 256,
+  "B_starved_steps": 130,
+  "B_slowdown": 3.0,
+  "A_slowdown": 1.5,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.98,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.36,
+    "dt_ms": 63.76,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60131.12,
+    "dt_ms": 64.55,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60195.67,
+    "dt_ms": 65.33,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "nocap",
+  "queue": "priority",
+  "C_ttft_ms": 14650.3,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2092.8,
+  "C_starved_steps": 126,
+  "B_starved_steps": 130,
+  "B_slowdown": 3.0,
+  "A_slowdown": 1.5,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.98,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.36,
+    "dt_ms": 63.76,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60131.12,
+    "dt_ms": 64.55,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60195.67,
+    "dt_ms": 65.33,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 768
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "static512",
+  "queue": "fcfs",
+  "C_ttft_ms": 20501.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2928.7,
+  "C_starved_steps": 191,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.2,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "static512",
+  "queue": "priority",
+  "C_ttft_ms": 20501.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2928.7,
+  "C_starved_steps": 191,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.2,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "adaptive512",
+  "queue": "fcfs",
+  "C_ttft_ms": 20501.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2928.7,
+  "C_starved_steps": 191,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.2,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "adaptive512",
+  "queue": "priority",
+  "C_ttft_ms": 20501.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2928.7,
+  "C_starved_steps": 191,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.2,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "adaptive512_pf",
+  "queue": "fcfs",
+  "C_ttft_ms": 20501.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2928.7,
+  "C_starved_steps": 191,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.0,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "adaptive512_pf",
+  "queue": "priority",
+  "C_ttft_ms": 20501.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2928.7,
+  "C_starved_steps": 191,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.0,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "srpt_fix",
+  "queue": "fcfs",
+  "C_ttft_ms": 122.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 17.5,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.2,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 256,
+  "cap_policy": "srpt_fix",
+  "queue": "priority",
+  "C_ttft_ms": 122.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 17.5,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.2,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2388,
+    "t_ms": 60004.38,
+    "dt_ms": 62.81,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2389,
+    "t_ms": 60067.19,
+    "dt_ms": 63.25,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2390,
+    "t_ms": 60130.44,
+    "dt_ms": 63.69,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   },
+   {
+    "step": 2391,
+    "t_ms": 60194.13,
+    "dt_ms": 64.13,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 256
+    },
+    "decode_tokens": 256,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "nocap",
+  "queue": "fcfs",
+  "C_ttft_ms": 42817.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 6116.6,
+  "C_starved_steps": 387,
+  "B_starved_steps": 195,
+  "B_slowdown": 4.4,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "nocap",
+  "queue": "priority",
+  "C_ttft_ms": 20833.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2976.1,
+  "C_starved_steps": 192,
+  "B_starved_steps": 195,
+  "B_slowdown": 4.4,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "static512",
+  "queue": "fcfs",
+  "C_ttft_ms": 42817.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 6116.6,
+  "C_starved_steps": 387,
+  "B_starved_steps": 195,
+  "B_slowdown": 4.4,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "static512",
+  "queue": "priority",
+  "C_ttft_ms": 20833.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2976.1,
+  "C_starved_steps": 192,
+  "B_starved_steps": 195,
+  "B_slowdown": 4.4,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "adaptive512",
+  "queue": "fcfs",
+  "C_ttft_ms": 42817.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 6116.6,
+  "C_starved_steps": 387,
+  "B_starved_steps": 195,
+  "B_slowdown": 4.4,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "adaptive512",
+  "queue": "priority",
+  "C_ttft_ms": 20833.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2976.1,
+  "C_starved_steps": 192,
+  "B_starved_steps": 195,
+  "B_slowdown": 4.4,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "adaptive512_pf",
+  "queue": "fcfs",
+  "C_ttft_ms": 42817.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 6116.6,
+  "C_starved_steps": 387,
+  "B_starved_steps": 195,
+  "B_slowdown": 4.4,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "adaptive512_pf",
+  "queue": "priority",
+  "C_ttft_ms": 20833.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2976.1,
+  "C_starved_steps": 192,
+  "B_starved_steps": 195,
+  "B_slowdown": 4.4,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.73,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "srpt_fix",
+  "queue": "fcfs",
+  "C_ttft_ms": 135.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 19.3,
+  "C_starved_steps": 0,
+  "B_starved_steps": 195,
+  "B_slowdown": 4.4,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.68,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 1,
+    "alloc": {
+     "C": 20,
+     "A": 492
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 512,
+  "cap_policy": "srpt_fix",
+  "queue": "priority",
+  "C_ttft_ms": 135.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 19.3,
+  "C_starved_steps": 0,
+  "B_starved_steps": 195,
+  "B_slowdown": 4.4,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1536,
+    "t_ms": 60046.71,
+    "dt_ms": 71.63,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1537,
+    "t_ms": 60118.34,
+    "dt_ms": 72.0,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1538,
+    "t_ms": 60190.34,
+    "dt_ms": 72.37,
+    "cap": 512,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   },
+   {
+    "step": 1539,
+    "t_ms": 60262.71,
+    "dt_ms": 72.68,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 1,
+    "alloc": {
+     "C": 20,
+     "A": 492
+    },
+    "decode_tokens": 512,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "nocap",
+  "queue": "fcfs",
+  "C_ttft_ms": 83804.0,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 11971.5,
+  "C_starved_steps": 778,
+  "B_starved_steps": 390,
+  "B_slowdown": 8.5,
+  "A_slowdown": 4.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "nocap",
+  "queue": "priority",
+  "C_ttft_ms": 39130.0,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 5589.8,
+  "C_starved_steps": 387,
+  "B_starved_steps": 390,
+  "B_slowdown": 8.5,
+  "A_slowdown": 4.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "static512",
+  "queue": "fcfs",
+  "C_ttft_ms": 83804.0,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 11971.5,
+  "C_starved_steps": 778,
+  "B_starved_steps": 390,
+  "B_slowdown": 8.5,
+  "A_slowdown": 4.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "static512",
+  "queue": "priority",
+  "C_ttft_ms": 39130.0,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 5589.8,
+  "C_starved_steps": 387,
+  "B_starved_steps": 390,
+  "B_slowdown": 8.5,
+  "A_slowdown": 4.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "adaptive512",
+  "queue": "fcfs",
+  "C_ttft_ms": 83804.0,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 11971.5,
+  "C_starved_steps": 778,
+  "B_starved_steps": 390,
+  "B_slowdown": 8.5,
+  "A_slowdown": 4.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "adaptive512",
+  "queue": "priority",
+  "C_ttft_ms": 39130.0,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 5589.8,
+  "C_starved_steps": 387,
+  "B_starved_steps": 390,
+  "B_slowdown": 8.5,
+  "A_slowdown": 4.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "adaptive512_pf",
+  "queue": "fcfs",
+  "C_ttft_ms": 83804.0,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 11971.5,
+  "C_starved_steps": 778,
+  "B_starved_steps": 390,
+  "B_slowdown": 8.5,
+  "A_slowdown": 4.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "adaptive512_pf",
+  "queue": "priority",
+  "C_ttft_ms": 39130.0,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 5589.8,
+  "C_starved_steps": 387,
+  "B_starved_steps": 390,
+  "B_slowdown": 8.5,
+  "A_slowdown": 4.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.56,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "srpt_fix",
+  "queue": "fcfs",
+  "C_ttft_ms": 143.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 20.5,
+  "C_starved_steps": 0,
+  "B_starved_steps": 390,
+  "B_slowdown": 8.5,
+  "A_slowdown": 4.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.54,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 1,
+    "alloc": {
+     "C": 20,
+     "A": 236
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "extreme_100k",
+  "budget": 1024,
+  "n_decodes": 768,
+  "cap_policy": "srpt_fix",
+  "queue": "priority",
+  "C_ttft_ms": 143.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 20.5,
+  "C_starved_steps": 0,
+  "B_starved_steps": 390,
+  "B_slowdown": 8.5,
+  "A_slowdown": 4.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1193,
+    "t_ms": 60033.89,
+    "dt_ms": 77.2,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1194,
+    "t_ms": 60111.09,
+    "dt_ms": 77.32,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1195,
+    "t_ms": 60188.42,
+    "dt_ms": 77.44,
+    "cap": 512,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 256
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   },
+   {
+    "step": 1196,
+    "t_ms": 60265.86,
+    "dt_ms": 77.54,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 1,
+    "alloc": {
+     "C": 20,
+     "A": 236
+    },
+    "decode_tokens": 768,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 0,
+  "cap_policy": "nocap",
+  "queue": "fcfs",
+  "C_ttft_ms": 19378.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2768.3,
+  "C_starved_steps": 23,
+  "B_starved_steps": 12,
+  "B_slowdown": 2.0,
+  "A_slowdown": 1.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 307.1,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 8192
+    },
+    "decode_tokens": 0,
+    "budget_used": 8192
+   },
+   {
+    "step": 2,
+    "t_ms": 60307.1,
+    "dt_ms": 395.01,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 8192
+    },
+    "decode_tokens": 0,
+    "budget_used": 8192
+   },
+   {
+    "step": 3,
+    "t_ms": 60702.11,
+    "dt_ms": 482.93,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 8192
+    },
+    "decode_tokens": 0,
+    "budget_used": 8192
+   },
+   {
+    "step": 4,
+    "t_ms": 61185.04,
+    "dt_ms": 570.84,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 8192
+    },
+    "decode_tokens": 0,
+    "budget_used": 8192
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 0,
+  "cap_policy": "nocap",
+  "queue": "priority",
+  "C_ttft_ms": 9798.3,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 1399.7,
+  "C_starved_steps": 11,
+  "B_starved_steps": 12,
+  "B_slowdown": 2.0,
+  "A_slowdown": 1.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 307.1,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 8192
+    },
+    "decode_tokens": 0,
+    "budget_used": 8192
+   },
+   {
+    "step": 2,
+    "t_ms": 60307.1,
+    "dt_ms": 395.01,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 8192
+    },
+    "decode_tokens": 0,
+    "budget_used": 8192
+   },
+   {
+    "step": 3,
+    "t_ms": 60702.11,
+    "dt_ms": 482.93,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 8192
+    },
+    "decode_tokens": 0,
+    "budget_used": 8192
+   },
+   {
+    "step": 4,
+    "t_ms": 61185.04,
+    "dt_ms": 570.84,
+    "cap": 0,
+    "n_running": 1,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 8192
+    },
+    "decode_tokens": 0,
+    "budget_used": 8192
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 0,
+  "cap_policy": "static512",
+  "queue": "fcfs",
+  "C_ttft_ms": 53.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 7.7,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 0,
+  "cap_policy": "static512",
+  "queue": "priority",
+  "C_ttft_ms": 53.8,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 7.7,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 34.11,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 2,
+    "t_ms": 60034.11,
+    "dt_ms": 34.8,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 3,
+    "t_ms": 60068.91,
+    "dt_ms": 35.49,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   },
+   {
+    "step": 4,
+    "t_ms": 60104.39,
+    "dt_ms": 36.17,
+    "cap": 512,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 0,
+    "budget_used": 1024
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 0,
+  "cap_policy": "adaptive512",
+  "queue": "fcfs",
+  "C_ttft_ms": 300.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 42.9,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 285.12,
+    "cap": 4096,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 4096,
+     "B": 4096
+    },
+    "decode_tokens": 0,
+    "budget_used": 8192
+   },
+   {
+    "step": 2,
+    "t_ms": 60285.12,
+    "dt_ms": 215.42,
+    "cap": 2730,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 2730,
+     "B": 2730,
+     "C": 20
+    },
+    "decode_tokens": 0,
+    "budget_used": 5480
+   },
+   {
+    "step": 3,
+    "t_ms": 60500.54,
+    "dt_ms": 234.34,
+    "cap": 2730,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 2730,
+     "B": 2730,
+     "C": 1
+    },
+    "decode_tokens": 1,
+    "budget_used": 5461
+   },
+   {
+    "step": 4,
+    "t_ms": 60734.88,
+    "dt_ms": 253.87,
+    "cap": 2730,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 2730,
+     "B": 2730,
+     "C": 1
+    },
+    "decode_tokens": 1,
+    "budget_used": 5461
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 0,
+  "cap_policy": "adaptive512",
+  "queue": "priority",
+  "C_ttft_ms": 300.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 42.9,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 285.12,
+    "cap": 4096,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 4096,
+     "B": 4096
+    },
+    "decode_tokens": 0,
+    "budget_used": 8192
+   },
+   {
+    "step": 2,
+    "t_ms": 60285.12,
+    "dt_ms": 215.42,
+    "cap": 2730,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 2730,
+     "B": 2730,
+     "C": 20
+    },
+    "decode_tokens": 0,
+    "budget_used": 5480
+   },
+   {
+    "step": 3,
+    "t_ms": 60500.54,
+    "dt_ms": 234.34,
+    "cap": 2730,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 2730,
+     "B": 2730,
+     "C": 1
+    },
+    "decode_tokens": 1,
+    "budget_used": 5461
+   },
+   {
+    "step": 4,
+    "t_ms": 60734.88,
+    "dt_ms": 253.87,
+    "cap": 2730,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 2730,
+     "B": 2730,
+     "C": 1
+    },
+    "decode_tokens": 1,
+    "budget_used": 5461
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 0,
+  "cap_policy": "adaptive512_pf",
+  "queue": "fcfs",
+  "C_ttft_ms": 300.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 42.9,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 285.12,
+    "cap": 4096,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 4096,
+     "B": 4096
+    },
+    "decode_tokens": 0,
+    "budget_used": 8192
+   },
+   {
+    "step": 2,
+    "t_ms": 60285.12,
+    "dt_ms": 215.42,
+    "cap": 2730,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 2730,
+     "B": 2730,
+     "C": 20
+    },
+    "decode_tokens": 0,
+    "budget_used": 5480
+   },
+   {
+    "step": 3,
+    "t_ms": 60500.54,
+    "dt_ms": 358.32,
+    "cap": 4095,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 4095,
+     "B": 4095,
+     "C": 1
+    },
+    "decode_tokens": 1,
+    "budget_used": 8191
+   },
+   {
+    "step": 4,
+    "t_ms": 60858.86,
+    "dt_ms": 402.25,
+    "cap": 4095,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 4095,
+     "B": 4095,
+     "C": 1
+    },
+    "decode_tokens": 1,
+    "budget_used": 8191
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 0,
+  "cap_policy": "adaptive512_pf",
+  "queue": "priority",
+  "C_ttft_ms": 300.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 42.9,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 285.12,
+    "cap": 4096,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 4096,
+     "B": 4096
+    },
+    "decode_tokens": 0,
+    "budget_used": 8192
+   },
+   {
+    "step": 2,
+    "t_ms": 60285.12,
+    "dt_ms": 215.42,
+    "cap": 2730,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 2730,
+     "B": 2730,
+     "C": 20
+    },
+    "decode_tokens": 0,
+    "budget_used": 5480
+   },
+   {
+    "step": 3,
+    "t_ms": 60500.54,
+    "dt_ms": 358.32,
+    "cap": 4095,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 4095,
+     "B": 4095,
+     "C": 1
+    },
+    "decode_tokens": 1,
+    "budget_used": 8191
+   },
+   {
+    "step": 4,
+    "t_ms": 60858.86,
+    "dt_ms": 402.25,
+    "cap": 4095,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 4095,
+     "B": 4095,
+     "C": 1
+    },
+    "decode_tokens": 1,
+    "budget_used": 8191
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 0,
+  "cap_policy": "srpt_fix",
+  "queue": "fcfs",
+  "C_ttft_ms": 300.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 42.9,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 285.12,
+    "cap": 4096,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 4096,
+     "B": 4096
+    },
+    "decode_tokens": 0,
+    "budget_used": 8192
+   },
+   {
+    "step": 2,
+    "t_ms": 60285.12,
+    "dt_ms": 215.42,
+    "cap": 2730,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 20,
+     "A": 2730,
+     "B": 2730
+    },
+    "decode_tokens": 0,
+    "budget_used": 5480
+   },
+   {
+    "step": 3,
+    "t_ms": 60500.54,
+    "dt_ms": 234.34,
+    "cap": 2730,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 1,
+     "A": 2730,
+     "B": 2730
+    },
+    "decode_tokens": 1,
+    "budget_used": 5461
+   },
+   {
+    "step": 4,
+    "t_ms": 60734.88,
+    "dt_ms": 253.87,
+    "cap": 2730,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 1,
+     "A": 2730,
+     "B": 2730
+    },
+    "decode_tokens": 1,
+    "budget_used": 5461
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 0,
+  "cap_policy": "srpt_fix",
+  "queue": "priority",
+  "C_ttft_ms": 300.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 42.9,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.0,
+  "A_slowdown": 2.0,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1,
+    "t_ms": 60000.0,
+    "dt_ms": 285.12,
+    "cap": 4096,
+    "n_running": 2,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 4096,
+     "B": 4096
+    },
+    "decode_tokens": 0,
+    "budget_used": 8192
+   },
+   {
+    "step": 2,
+    "t_ms": 60285.12,
+    "dt_ms": 215.42,
+    "cap": 2730,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 20,
+     "A": 2730,
+     "B": 2730
+    },
+    "decode_tokens": 0,
+    "budget_used": 5480
+   },
+   {
+    "step": 3,
+    "t_ms": 60500.54,
+    "dt_ms": 234.34,
+    "cap": 2730,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 1,
+     "A": 2730,
+     "B": 2730
+    },
+    "decode_tokens": 1,
+    "budget_used": 5461
+   },
+   {
+    "step": 4,
+    "t_ms": 60734.88,
+    "dt_ms": 253.87,
+    "cap": 2730,
+    "n_running": 3,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 1,
+     "A": 2730,
+     "B": 2730
+    },
+    "decode_tokens": 1,
+    "budget_used": 5461
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 256,
+  "cap_policy": "nocap",
+  "queue": "fcfs",
+  "C_ttft_ms": 20376.0,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2910.7,
+  "C_starved_steps": 24,
+  "B_starved_steps": 12,
+  "B_slowdown": 2.1,
+  "A_slowdown": 1.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2365,
+    "t_ms": 60025.26,
+    "dt_ms": 333.24,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 7936
+    },
+    "decode_tokens": 256,
+    "budget_used": 8192
+   },
+   {
+    "step": 2366,
+    "t_ms": 60358.5,
+    "dt_ms": 415.75,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7936
+    },
+    "decode_tokens": 256,
+    "budget_used": 8192
+   },
+   {
+    "step": 2367,
+    "t_ms": 60774.25,
+    "dt_ms": 498.27,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7936
+    },
+    "decode_tokens": 256,
+    "budget_used": 8192
+   },
+   {
+    "step": 2368,
+    "t_ms": 61272.52,
+    "dt_ms": 580.78,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7936
+    },
+    "decode_tokens": 256,
+    "budget_used": 8192
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 256,
+  "cap_policy": "nocap",
+  "queue": "priority",
+  "C_ttft_ms": 10178.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 1454.0,
+  "C_starved_steps": 11,
+  "B_starved_steps": 12,
+  "B_slowdown": 2.1,
+  "A_slowdown": 1.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2365,
+    "t_ms": 60025.26,
+    "dt_ms": 333.24,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 7936
+    },
+    "decode_tokens": 256,
+    "budget_used": 8192
+   },
+   {
+    "step": 2366,
+    "t_ms": 60358.5,
+    "dt_ms": 415.75,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7936
+    },
+    "decode_tokens": 256,
+    "budget_used": 8192
+   },
+   {
+    "step": 2367,
+    "t_ms": 60774.25,
+    "dt_ms": 498.27,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7936
+    },
+    "decode_tokens": 256,
+    "budget_used": 8192
+   },
+   {
+    "step": 2368,
+    "t_ms": 61272.52,
+    "dt_ms": 580.78,
+    "cap": 0,
+    "n_running": 257,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7936
+    },
+    "decode_tokens": 256,
+    "budget_used": 8192
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 256,
+  "cap_policy": "static512",
+  "queue": "fcfs",
+  "C_ttft_ms": 114.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 16.4,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.8,
+  "A_slowdown": 2.8,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2365,
+    "t_ms": 60025.26,
+    "dt_ms": 71.14,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2366,
+    "t_ms": 60096.41,
+    "dt_ms": 71.84,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2367,
+    "t_ms": 60168.25,
+    "dt_ms": 72.54,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2368,
+    "t_ms": 60240.79,
+    "dt_ms": 73.88,
+    "cap": 512,
+    "n_running": 259,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 20
+    },
+    "decode_tokens": 256,
+    "budget_used": 1300
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 256,
+  "cap_policy": "static512",
+  "queue": "priority",
+  "C_ttft_ms": 114.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 16.4,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.8,
+  "A_slowdown": 2.8,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2365,
+    "t_ms": 60025.26,
+    "dt_ms": 71.14,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2366,
+    "t_ms": 60096.41,
+    "dt_ms": 71.84,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2367,
+    "t_ms": 60168.25,
+    "dt_ms": 72.54,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2368,
+    "t_ms": 60240.79,
+    "dt_ms": 73.88,
+    "cap": 512,
+    "n_running": 259,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 20
+    },
+    "decode_tokens": 256,
+    "budget_used": 1300
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 256,
+  "cap_policy": "adaptive512",
+  "queue": "fcfs",
+  "C_ttft_ms": 114.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 16.4,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.8,
+  "A_slowdown": 2.8,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2365,
+    "t_ms": 60025.26,
+    "dt_ms": 71.14,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2366,
+    "t_ms": 60096.41,
+    "dt_ms": 71.84,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2367,
+    "t_ms": 60168.25,
+    "dt_ms": 72.54,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2368,
+    "t_ms": 60240.79,
+    "dt_ms": 73.88,
+    "cap": 512,
+    "n_running": 259,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 20
+    },
+    "decode_tokens": 256,
+    "budget_used": 1300
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 256,
+  "cap_policy": "adaptive512",
+  "queue": "priority",
+  "C_ttft_ms": 114.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 16.4,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.8,
+  "A_slowdown": 2.8,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2365,
+    "t_ms": 60025.26,
+    "dt_ms": 71.14,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2366,
+    "t_ms": 60096.41,
+    "dt_ms": 71.84,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2367,
+    "t_ms": 60168.25,
+    "dt_ms": 72.54,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2368,
+    "t_ms": 60240.79,
+    "dt_ms": 73.88,
+    "cap": 512,
+    "n_running": 259,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 20
+    },
+    "decode_tokens": 256,
+    "budget_used": 1300
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 256,
+  "cap_policy": "adaptive512_pf",
+  "queue": "fcfs",
+  "C_ttft_ms": 382.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 54.6,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.1,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2365,
+    "t_ms": 60025.26,
+    "dt_ms": 312.61,
+    "cap": 3968,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3968,
+     "B": 3968
+    },
+    "decode_tokens": 256,
+    "budget_used": 8192
+   },
+   {
+    "step": 2366,
+    "t_ms": 60337.87,
+    "dt_ms": 244.63,
+    "cap": 2645,
+    "n_running": 259,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 2645,
+     "B": 2645,
+     "C": 20
+    },
+    "decode_tokens": 256,
+    "budget_used": 5566
+   },
+   {
+    "step": 2367,
+    "t_ms": 60582.5,
+    "dt_ms": 381.32,
+    "cap": 3967,
+    "n_running": 259,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3967,
+     "B": 3967,
+     "C": 1
+    },
+    "decode_tokens": 257,
+    "budget_used": 8191
+   },
+   {
+    "step": 2368,
+    "t_ms": 60963.82,
+    "dt_ms": 422.57,
+    "cap": 3967,
+    "n_running": 259,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3967,
+     "B": 3967,
+     "C": 1
+    },
+    "decode_tokens": 257,
+    "budget_used": 8191
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 256,
+  "cap_policy": "adaptive512_pf",
+  "queue": "priority",
+  "C_ttft_ms": 382.5,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 54.6,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.1,
+  "A_slowdown": 2.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2365,
+    "t_ms": 60025.26,
+    "dt_ms": 312.61,
+    "cap": 3968,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3968,
+     "B": 3968
+    },
+    "decode_tokens": 256,
+    "budget_used": 8192
+   },
+   {
+    "step": 2366,
+    "t_ms": 60337.87,
+    "dt_ms": 244.63,
+    "cap": 2645,
+    "n_running": 259,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 2645,
+     "B": 2645,
+     "C": 20
+    },
+    "decode_tokens": 256,
+    "budget_used": 5566
+   },
+   {
+    "step": 2367,
+    "t_ms": 60582.5,
+    "dt_ms": 381.32,
+    "cap": 3967,
+    "n_running": 259,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3967,
+     "B": 3967,
+     "C": 1
+    },
+    "decode_tokens": 257,
+    "budget_used": 8191
+   },
+   {
+    "step": 2368,
+    "t_ms": 60963.82,
+    "dt_ms": 422.57,
+    "cap": 3967,
+    "n_running": 259,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3967,
+     "B": 3967,
+     "C": 1
+    },
+    "decode_tokens": 257,
+    "budget_used": 8191
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 256,
+  "cap_policy": "srpt_fix",
+  "queue": "fcfs",
+  "C_ttft_ms": 114.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 16.4,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.8,
+  "A_slowdown": 2.8,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2365,
+    "t_ms": 60025.26,
+    "dt_ms": 71.14,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2366,
+    "t_ms": 60096.41,
+    "dt_ms": 71.84,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2367,
+    "t_ms": 60168.25,
+    "dt_ms": 72.54,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2368,
+    "t_ms": 60240.79,
+    "dt_ms": 73.88,
+    "cap": 512,
+    "n_running": 259,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 20,
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1300
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 256,
+  "cap_policy": "srpt_fix",
+  "queue": "priority",
+  "C_ttft_ms": 114.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 16.4,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.8,
+  "A_slowdown": 2.8,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 2365,
+    "t_ms": 60025.26,
+    "dt_ms": 71.14,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2366,
+    "t_ms": 60096.41,
+    "dt_ms": 71.84,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2367,
+    "t_ms": 60168.25,
+    "dt_ms": 72.54,
+    "cap": 512,
+    "n_running": 258,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1280
+   },
+   {
+    "step": 2368,
+    "t_ms": 60240.79,
+    "dt_ms": 73.88,
+    "cap": 512,
+    "n_running": 259,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 20,
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 256,
+    "budget_used": 1300
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 512,
+  "cap_policy": "nocap",
+  "queue": "fcfs",
+  "C_ttft_ms": 20879.1,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 2982.6,
+  "C_starved_steps": 25,
+  "B_starved_steps": 13,
+  "B_slowdown": 2.2,
+  "A_slowdown": 1.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1482,
+    "t_ms": 60025.29,
+    "dt_ms": 339.49,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 7680
+    },
+    "decode_tokens": 512,
+    "budget_used": 8192
+   },
+   {
+    "step": 1483,
+    "t_ms": 60364.78,
+    "dt_ms": 416.78,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7680
+    },
+    "decode_tokens": 512,
+    "budget_used": 8192
+   },
+   {
+    "step": 1484,
+    "t_ms": 60781.57,
+    "dt_ms": 494.07,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7680
+    },
+    "decode_tokens": 512,
+    "budget_used": 8192
+   },
+   {
+    "step": 1485,
+    "t_ms": 61275.64,
+    "dt_ms": 571.36,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7680
+    },
+    "decode_tokens": 512,
+    "budget_used": 8192
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 512,
+  "cap_policy": "nocap",
+  "queue": "priority",
+  "C_ttft_ms": 10626.2,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 1518.0,
+  "C_starved_steps": 12,
+  "B_starved_steps": 13,
+  "B_slowdown": 2.2,
+  "A_slowdown": 1.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1482,
+    "t_ms": 60025.29,
+    "dt_ms": 339.49,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 7680
+    },
+    "decode_tokens": 512,
+    "budget_used": 8192
+   },
+   {
+    "step": 1483,
+    "t_ms": 60364.78,
+    "dt_ms": 416.78,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7680
+    },
+    "decode_tokens": 512,
+    "budget_used": 8192
+   },
+   {
+    "step": 1484,
+    "t_ms": 60781.57,
+    "dt_ms": 494.07,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7680
+    },
+    "decode_tokens": 512,
+    "budget_used": 8192
+   },
+   {
+    "step": 1485,
+    "t_ms": 61275.64,
+    "dt_ms": 571.36,
+    "cap": 0,
+    "n_running": 513,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7680
+    },
+    "decode_tokens": 512,
+    "budget_used": 8192
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 512,
+  "cap_policy": "static512",
+  "queue": "fcfs",
+  "C_ttft_ms": 92.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 13.2,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.2,
+  "A_slowdown": 3.2,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1482,
+    "t_ms": 60025.29,
+    "dt_ms": 88.21,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1536
+   },
+   {
+    "step": 1483,
+    "t_ms": 60113.5,
+    "dt_ms": 88.92,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1536
+   },
+   {
+    "step": 1484,
+    "t_ms": 60202.42,
+    "dt_ms": 90.27,
+    "cap": 512,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 20
+    },
+    "decode_tokens": 512,
+    "budget_used": 1556
+   },
+   {
+    "step": 1485,
+    "t_ms": 60292.69,
+    "dt_ms": 90.37,
+    "cap": 512,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 1
+    },
+    "decode_tokens": 513,
+    "budget_used": 1537
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 512,
+  "cap_policy": "static512",
+  "queue": "priority",
+  "C_ttft_ms": 92.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 13.2,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.2,
+  "A_slowdown": 3.2,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1482,
+    "t_ms": 60025.29,
+    "dt_ms": 88.21,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1536
+   },
+   {
+    "step": 1483,
+    "t_ms": 60113.5,
+    "dt_ms": 88.92,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1536
+   },
+   {
+    "step": 1484,
+    "t_ms": 60202.42,
+    "dt_ms": 90.27,
+    "cap": 512,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 20
+    },
+    "decode_tokens": 512,
+    "budget_used": 1556
+   },
+   {
+    "step": 1485,
+    "t_ms": 60292.69,
+    "dt_ms": 90.37,
+    "cap": 512,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 1
+    },
+    "decode_tokens": 513,
+    "budget_used": 1537
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 512,
+  "cap_policy": "adaptive512",
+  "queue": "fcfs",
+  "C_ttft_ms": 92.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 13.2,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.2,
+  "A_slowdown": 3.2,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1482,
+    "t_ms": 60025.29,
+    "dt_ms": 88.21,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1536
+   },
+   {
+    "step": 1483,
+    "t_ms": 60113.5,
+    "dt_ms": 88.92,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1536
+   },
+   {
+    "step": 1484,
+    "t_ms": 60202.42,
+    "dt_ms": 90.27,
+    "cap": 512,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 20
+    },
+    "decode_tokens": 512,
+    "budget_used": 1556
+   },
+   {
+    "step": 1485,
+    "t_ms": 60292.69,
+    "dt_ms": 90.37,
+    "cap": 512,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 1
+    },
+    "decode_tokens": 513,
+    "budget_used": 1537
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 512,
+  "cap_policy": "adaptive512",
+  "queue": "priority",
+  "C_ttft_ms": 92.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 13.2,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.2,
+  "A_slowdown": 3.2,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1482,
+    "t_ms": 60025.29,
+    "dt_ms": 88.21,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1536
+   },
+   {
+    "step": 1483,
+    "t_ms": 60113.5,
+    "dt_ms": 88.92,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1536
+   },
+   {
+    "step": 1484,
+    "t_ms": 60202.42,
+    "dt_ms": 90.27,
+    "cap": 512,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 20
+    },
+    "decode_tokens": 512,
+    "budget_used": 1556
+   },
+   {
+    "step": 1485,
+    "t_ms": 60292.69,
+    "dt_ms": 90.37,
+    "cap": 512,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 1
+    },
+    "decode_tokens": 513,
+    "budget_used": 1537
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 512,
+  "cap_policy": "adaptive512_pf",
+  "queue": "fcfs",
+  "C_ttft_ms": 399.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 57.1,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.2,
+  "A_slowdown": 2.2,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1482,
+    "t_ms": 60025.29,
+    "dt_ms": 320.18,
+    "cap": 3840,
+    "n_running": 514,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3840,
+     "B": 3840
+    },
+    "decode_tokens": 512,
+    "budget_used": 8192
+   },
+   {
+    "step": 1483,
+    "t_ms": 60345.47,
+    "dt_ms": 253.94,
+    "cap": 2560,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 2560,
+     "B": 2560,
+     "C": 20
+    },
+    "decode_tokens": 512,
+    "budget_used": 5652
+   },
+   {
+    "step": 1484,
+    "t_ms": 60599.41,
+    "dt_ms": 384.55,
+    "cap": 3839,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3839,
+     "B": 3839,
+     "C": 1
+    },
+    "decode_tokens": 513,
+    "budget_used": 8191
+   },
+   {
+    "step": 1485,
+    "t_ms": 60983.96,
+    "dt_ms": 423.19,
+    "cap": 3839,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3839,
+     "B": 3839,
+     "C": 1
+    },
+    "decode_tokens": 513,
+    "budget_used": 8191
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 512,
+  "cap_policy": "adaptive512_pf",
+  "queue": "priority",
+  "C_ttft_ms": 399.4,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 57.1,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.2,
+  "A_slowdown": 2.2,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1482,
+    "t_ms": 60025.29,
+    "dt_ms": 320.18,
+    "cap": 3840,
+    "n_running": 514,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3840,
+     "B": 3840
+    },
+    "decode_tokens": 512,
+    "budget_used": 8192
+   },
+   {
+    "step": 1483,
+    "t_ms": 60345.47,
+    "dt_ms": 253.94,
+    "cap": 2560,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 2560,
+     "B": 2560,
+     "C": 20
+    },
+    "decode_tokens": 512,
+    "budget_used": 5652
+   },
+   {
+    "step": 1484,
+    "t_ms": 60599.41,
+    "dt_ms": 384.55,
+    "cap": 3839,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3839,
+     "B": 3839,
+     "C": 1
+    },
+    "decode_tokens": 513,
+    "budget_used": 8191
+   },
+   {
+    "step": 1485,
+    "t_ms": 60983.96,
+    "dt_ms": 423.19,
+    "cap": 3839,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3839,
+     "B": 3839,
+     "C": 1
+    },
+    "decode_tokens": 513,
+    "budget_used": 8191
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 512,
+  "cap_policy": "srpt_fix",
+  "queue": "fcfs",
+  "C_ttft_ms": 92.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 13.2,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.2,
+  "A_slowdown": 3.2,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1482,
+    "t_ms": 60025.29,
+    "dt_ms": 88.21,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1536
+   },
+   {
+    "step": 1483,
+    "t_ms": 60113.5,
+    "dt_ms": 88.92,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1536
+   },
+   {
+    "step": 1484,
+    "t_ms": 60202.42,
+    "dt_ms": 90.27,
+    "cap": 512,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 20,
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1556
+   },
+   {
+    "step": 1485,
+    "t_ms": 60292.69,
+    "dt_ms": 90.37,
+    "cap": 512,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 1,
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 513,
+    "budget_used": 1537
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 512,
+  "cap_policy": "srpt_fix",
+  "queue": "priority",
+  "C_ttft_ms": 92.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 13.2,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.2,
+  "A_slowdown": 3.2,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1482,
+    "t_ms": 60025.29,
+    "dt_ms": 88.21,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1536
+   },
+   {
+    "step": 1483,
+    "t_ms": 60113.5,
+    "dt_ms": 88.92,
+    "cap": 512,
+    "n_running": 514,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1536
+   },
+   {
+    "step": 1484,
+    "t_ms": 60202.42,
+    "dt_ms": 90.27,
+    "cap": 512,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 20,
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 512,
+    "budget_used": 1556
+   },
+   {
+    "step": 1485,
+    "t_ms": 60292.69,
+    "dt_ms": 90.37,
+    "cap": 512,
+    "n_running": 515,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 1,
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 513,
+    "budget_used": 1537
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 768,
+  "cap_policy": "nocap",
+  "queue": "fcfs",
+  "C_ttft_ms": 21261.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 3037.3,
+  "C_starved_steps": 25,
+  "B_starved_steps": 13,
+  "B_slowdown": 2.2,
+  "A_slowdown": 1.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1098,
+    "t_ms": 60026.82,
+    "dt_ms": 342.73,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 7424
+    },
+    "decode_tokens": 768,
+    "budget_used": 8192
+   },
+   {
+    "step": 1099,
+    "t_ms": 60369.55,
+    "dt_ms": 414.96,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7424
+    },
+    "decode_tokens": 768,
+    "budget_used": 8192
+   },
+   {
+    "step": 1100,
+    "t_ms": 60784.51,
+    "dt_ms": 487.2,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7424
+    },
+    "decode_tokens": 768,
+    "budget_used": 8192
+   },
+   {
+    "step": 1101,
+    "t_ms": 61271.71,
+    "dt_ms": 559.44,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7424
+    },
+    "decode_tokens": 768,
+    "budget_used": 8192
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 768,
+  "cap_policy": "nocap",
+  "queue": "priority",
+  "C_ttft_ms": 10682.7,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 1526.0,
+  "C_starved_steps": 12,
+  "B_starved_steps": 13,
+  "B_slowdown": 2.2,
+  "A_slowdown": 1.1,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1098,
+    "t_ms": 60026.82,
+    "dt_ms": 342.73,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 1,
+    "alloc": {
+     "A": 7424
+    },
+    "decode_tokens": 768,
+    "budget_used": 8192
+   },
+   {
+    "step": 1099,
+    "t_ms": 60369.55,
+    "dt_ms": 414.96,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7424
+    },
+    "decode_tokens": 768,
+    "budget_used": 8192
+   },
+   {
+    "step": 1100,
+    "t_ms": 60784.51,
+    "dt_ms": 487.2,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7424
+    },
+    "decode_tokens": 768,
+    "budget_used": 8192
+   },
+   {
+    "step": 1101,
+    "t_ms": 61271.71,
+    "dt_ms": 559.44,
+    "cap": 0,
+    "n_running": 769,
+    "n_waiting": 2,
+    "alloc": {
+     "A": 7424
+    },
+    "decode_tokens": 768,
+    "budget_used": 8192
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 768,
+  "cap_policy": "static512",
+  "queue": "fcfs",
+  "C_ttft_ms": 136.1,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 19.4,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.5,
+  "A_slowdown": 3.5,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1098,
+    "t_ms": 60026.82,
+    "dt_ms": 102.17,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 768,
+    "budget_used": 1792
+   },
+   {
+    "step": 1099,
+    "t_ms": 60128.99,
+    "dt_ms": 102.89,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 768,
+    "budget_used": 1792
+   },
+   {
+    "step": 1100,
+    "t_ms": 60231.88,
+    "dt_ms": 104.25,
+    "cap": 512,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 20
+    },
+    "decode_tokens": 768,
+    "budget_used": 1812
+   },
+   {
+    "step": 1101,
+    "t_ms": 60336.14,
+    "dt_ms": 104.37,
+    "cap": 512,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 1
+    },
+    "decode_tokens": 769,
+    "budget_used": 1793
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 768,
+  "cap_policy": "static512",
+  "queue": "priority",
+  "C_ttft_ms": 136.1,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 19.4,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.5,
+  "A_slowdown": 3.5,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1098,
+    "t_ms": 60026.82,
+    "dt_ms": 102.17,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 768,
+    "budget_used": 1792
+   },
+   {
+    "step": 1099,
+    "t_ms": 60128.99,
+    "dt_ms": 102.89,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 768,
+    "budget_used": 1792
+   },
+   {
+    "step": 1100,
+    "t_ms": 60231.88,
+    "dt_ms": 104.25,
+    "cap": 512,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 20
+    },
+    "decode_tokens": 768,
+    "budget_used": 1812
+   },
+   {
+    "step": 1101,
+    "t_ms": 60336.14,
+    "dt_ms": 104.37,
+    "cap": 512,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 1
+    },
+    "decode_tokens": 769,
+    "budget_used": 1793
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 768,
+  "cap_policy": "adaptive512",
+  "queue": "fcfs",
+  "C_ttft_ms": 136.1,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 19.4,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.5,
+  "A_slowdown": 3.5,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1098,
+    "t_ms": 60026.82,
+    "dt_ms": 102.17,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 768,
+    "budget_used": 1792
+   },
+   {
+    "step": 1099,
+    "t_ms": 60128.99,
+    "dt_ms": 102.89,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 768,
+    "budget_used": 1792
+   },
+   {
+    "step": 1100,
+    "t_ms": 60231.88,
+    "dt_ms": 104.25,
+    "cap": 512,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 20
+    },
+    "decode_tokens": 768,
+    "budget_used": 1812
+   },
+   {
+    "step": 1101,
+    "t_ms": 60336.14,
+    "dt_ms": 104.37,
+    "cap": 512,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 1
+    },
+    "decode_tokens": 769,
+    "budget_used": 1793
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 768,
+  "cap_policy": "adaptive512",
+  "queue": "priority",
+  "C_ttft_ms": 136.1,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 19.4,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.5,
+  "A_slowdown": 3.5,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1098,
+    "t_ms": 60026.82,
+    "dt_ms": 102.17,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 768,
+    "budget_used": 1792
+   },
+   {
+    "step": 1099,
+    "t_ms": 60128.99,
+    "dt_ms": 102.89,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 768,
+    "budget_used": 1792
+   },
+   {
+    "step": 1100,
+    "t_ms": 60231.88,
+    "dt_ms": 104.25,
+    "cap": 512,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 20
+    },
+    "decode_tokens": 768,
+    "budget_used": 1812
+   },
+   {
+    "step": 1101,
+    "t_ms": 60336.14,
+    "dt_ms": 104.37,
+    "cap": 512,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512,
+     "C": 1
+    },
+    "decode_tokens": 769,
+    "budget_used": 1793
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 768,
+  "cap_policy": "adaptive512_pf",
+  "queue": "fcfs",
+  "C_ttft_ms": 411.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 58.8,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.2,
+  "A_slowdown": 2.2,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1098,
+    "t_ms": 60026.82,
+    "dt_ms": 324.68,
+    "cap": 3712,
+    "n_running": 770,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3712,
+     "B": 3712
+    },
+    "decode_tokens": 768,
+    "budget_used": 8192
+   },
+   {
+    "step": 1099,
+    "t_ms": 60351.5,
+    "dt_ms": 260.15,
+    "cap": 2474,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 2474,
+     "B": 2474,
+     "C": 20
+    },
+    "decode_tokens": 768,
+    "budget_used": 5736
+   },
+   {
+    "step": 1100,
+    "t_ms": 60611.65,
+    "dt_ms": 384.85,
+    "cap": 3711,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3711,
+     "B": 3711,
+     "C": 1
+    },
+    "decode_tokens": 769,
+    "budget_used": 8191
+   },
+   {
+    "step": 1101,
+    "t_ms": 60996.5,
+    "dt_ms": 420.97,
+    "cap": 3711,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3711,
+     "B": 3711,
+     "C": 1
+    },
+    "decode_tokens": 769,
+    "budget_used": 8191
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 768,
+  "cap_policy": "adaptive512_pf",
+  "queue": "priority",
+  "C_ttft_ms": 411.6,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 58.8,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 2.2,
+  "A_slowdown": 2.2,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1098,
+    "t_ms": 60026.82,
+    "dt_ms": 324.68,
+    "cap": 3712,
+    "n_running": 770,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3712,
+     "B": 3712
+    },
+    "decode_tokens": 768,
+    "budget_used": 8192
+   },
+   {
+    "step": 1099,
+    "t_ms": 60351.5,
+    "dt_ms": 260.15,
+    "cap": 2474,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 2474,
+     "B": 2474,
+     "C": 20
+    },
+    "decode_tokens": 768,
+    "budget_used": 5736
+   },
+   {
+    "step": 1100,
+    "t_ms": 60611.65,
+    "dt_ms": 384.85,
+    "cap": 3711,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3711,
+     "B": 3711,
+     "C": 1
+    },
+    "decode_tokens": 769,
+    "budget_used": 8191
+   },
+   {
+    "step": 1101,
+    "t_ms": 60996.5,
+    "dt_ms": 420.97,
+    "cap": 3711,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 3711,
+     "B": 3711,
+     "C": 1
+    },
+    "decode_tokens": 769,
+    "budget_used": 8191
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 768,
+  "cap_policy": "srpt_fix",
+  "queue": "fcfs",
+  "C_ttft_ms": 136.1,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 19.4,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.5,
+  "A_slowdown": 3.5,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1098,
+    "t_ms": 60026.82,
+    "dt_ms": 102.17,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 768,
+    "budget_used": 1792
+   },
+   {
+    "step": 1099,
+    "t_ms": 60128.99,
+    "dt_ms": 102.89,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 768,
+    "budget_used": 1792
+   },
+   {
+    "step": 1100,
+    "t_ms": 60231.88,
+    "dt_ms": 104.25,
+    "cap": 512,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 20,
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 768,
+    "budget_used": 1812
+   },
+   {
+    "step": 1101,
+    "t_ms": 60336.14,
+    "dt_ms": 104.37,
+    "cap": 512,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 1,
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 769,
+    "budget_used": 1793
+   }
+  ]
+ },
+ {
+  "scenario": "h100_default_budget",
+  "budget": 8192,
+  "n_decodes": 768,
+  "cap_policy": "srpt_fix",
+  "queue": "priority",
+  "C_ttft_ms": 136.1,
+  "C_alone_ttft_ms": 7.0,
+  "C_slowdown": 19.4,
+  "C_starved_steps": 0,
+  "B_starved_steps": 0,
+  "B_slowdown": 3.5,
+  "A_slowdown": 3.5,
+  "decoder_skips_max": 0,
+  "trace_head": [
+   {
+    "step": 1098,
+    "t_ms": 60026.82,
+    "dt_ms": 102.17,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 768,
+    "budget_used": 1792
+   },
+   {
+    "step": 1099,
+    "t_ms": 60128.99,
+    "dt_ms": 102.89,
+    "cap": 512,
+    "n_running": 770,
+    "n_waiting": 0,
+    "alloc": {
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 768,
+    "budget_used": 1792
+   },
+   {
+    "step": 1100,
+    "t_ms": 60231.88,
+    "dt_ms": 104.25,
+    "cap": 512,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 20,
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 768,
+    "budget_used": 1812
+   },
+   {
+    "step": 1101,
+    "t_ms": 60336.14,
+    "dt_ms": 104.37,
+    "cap": 512,
+    "n_running": 771,
+    "n_waiting": 0,
+    "alloc": {
+     "C": 1,
+     "A": 512,
+     "B": 512
+    },
+    "decode_tokens": 769,
+    "budget_used": 1793
+   }
+  ]
+ }
+]

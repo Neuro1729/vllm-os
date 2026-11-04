@@ -1,0 +1,12 @@
+.venv/
+.venv-charts/
+wheels/
+models/
+logs/
+data/mooncake/
+data/azure/
+gpu/workloads/v1/
+gpu/workloads/v2/
+gpu/workloads/v3/
+gpu/workloads/probe.json
+__pycache__/

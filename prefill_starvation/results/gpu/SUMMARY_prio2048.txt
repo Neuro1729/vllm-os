@@ -1,0 +1,92 @@
+== prio2048_decodeheavy_base
+PROBES(20 tok) n=40 missing=0 TTFT p50=0.58s p90=1.76s max=1.94s | errors=0
+requests=640 steps=706 matched_trace=640
+probes=40  starved_steps p50=0 max=0  longest_zero_run max=0  wait_steps p50=2 max=2
+during test: steps=363 median step=50ms  avg decodes/step=597  avg prefill chunks/step=0.2  max reqs waiting for 1st token=0  cap=512  preemptions=0  max kv_usage=0.89
+== prio2048_decodeheavy
+PROBES(20 tok) n=40 missing=0 TTFT p50=5.44s p90=13.22s max=14.72s | errors=0
+requests=644 steps=439 matched_trace=644
+probes=40  starved_steps p50=15 max=53  longest_zero_run max=53  wait_steps p50=17 max=55
+during test: steps=99 median step=48ms  avg decodes/step=598  avg prefill chunks/step=3.1  max reqs waiting for 1st token=28  cap=512  preemptions=0  max kv_usage=0.77
+== prio2048_decodeheavy_inv
+PROBES(20 tok) n=40 missing=0 TTFT p50=5.21s p90=12.92s max=14.42s | errors=0
+requests=644 steps=432 matched_trace=644
+probes=40  starved_steps p50=14 max=51  longest_zero_run max=51  wait_steps p50=16 max=53
+during test: steps=96 median step=49ms  avg decodes/step=601  avg prefill chunks/step=3.1  max reqs waiting for 1st token=28  cap=512  preemptions=0  max kv_usage=0.77
+== prio2048_manyprefill_base
+== prio2048_manyprefill_base
+PROBES(20 tok) n=40 missing=0 TTFT p50=0.08s p90=0.09s max=0.09s | errors=0
+requests=90 steps=3832 matched_trace=90
+probes=40  starved_steps p50=0 max=0  longest_zero_run max=0  wait_steps p50=2 max=2
+during test: steps=1612 median step=10ms  avg decodes/step=50  avg prefill chunks/step=0.0  max reqs waiting for 1st token=0  cap=512  preemptions=0  max kv_usage=0.35
+== prio2048_manyprefill
+PROBES(20 tok) n=40 missing=0 TTFT p50=16.33s p90=24.20s max=25.70s | errors=0
+requests=98 steps=2330 matched_trace=98
+probes=40  starved_steps p50=64 max=108  longest_zero_run max=108  wait_steps p50=66 max=110
+during test: steps=135 median step=9ms  avg decodes/step=51  avg prefill chunks/step=4.2  max reqs waiting for 1st token=40  cap=512  preemptions=0  max kv_usage=0.48
+== prio2048_manyprefill_inv
+PROBES(20 tok) n=40 missing=0 TTFT p50=7.39s p90=11.39s max=12.39s | errors=0
+requests=98 steps=2323 matched_trace=98
+probes=40  starved_steps p50=25 max=48  longest_zero_run max=48  wait_steps p50=27 max=50
+during test: steps=133 median step=9ms  avg decodes/step=52  avg prefill chunks/step=4.3  max reqs waiting for 1st token=26  cap=512  preemptions=0  max kv_usage=0.48
+== prio2048_manyprefill_lowprobe
+PROBES(20 tok) n=40 missing=0 TTFT p50=16.60s p90=24.36s max=25.86s | errors=0
+requests=98 steps=2324 matched_trace=98
+probes=40  starved_steps p50=64 max=107  longest_zero_run max=107  wait_steps p50=66 max=109
+during test: steps=133 median step=9ms  avg decodes/step=52  avg prefill chunks/step=4.3  max reqs waiting for 1st token=40  cap=512  preemptions=0  max kv_usage=0.48
+== prio2048_decodeheavy_lowprobe
+PROBES(20 tok) n=40 missing=0 TTFT p50=5.86s p90=13.59s max=15.09s | errors=0
+requests=644 steps=428 matched_trace=644
+probes=40  starved_steps p50=16 max=53  longest_zero_run max=53  wait_steps p50=18 max=55
+during test: steps=95 median step=49ms  avg decodes/step=602  avg prefill chunks/step=3.2  max reqs waiting for 1st token=29  cap=512  preemptions=0  max kv_usage=0.77
+== prio2048_lowprio_stream
+PROBES(20 tok) n=40 missing=0 TTFT p50=35.12s p90=51.11s max=53.97s | errors=0
+requests=140 steps=1058 matched_trace=140
+probes=40  starved_steps p50=197 max=307  longest_zero_run max=307  wait_steps p50=199 max=309
+during test: steps=312 median step=8ms  avg decodes/step=53  avg prefill chunks/step=4.4  max reqs waiting for 1st token=33  cap=512  preemptions=0  max kv_usage=0.25
+== prio2048_ds_S2base
+[safe_run] exit=0
+requests=217 steps=20514 matched_trace=217
+  short  n=64 miss=0 TTFT p50=0.55s p90=3.31s p99=4.42s max=4.42s | longest 0-token run max=30 steps
+  medium n=153 miss=0 TTFT p50=1.99s p90=3.94s p99=5.81s max=6.47s | longest 0-token run max=33 steps
+== prio2048_ds_S2
+== prio2048_ds_S2
+[safe_run] exit=0
+requests=273 steps=3739 matched_trace=273
+  short  n=64 miss=0 TTFT p50=32.81s p90=62.73s p99=80.32s max=80.32s | longest 0-token run max=359 steps
+  medium n=153 miss=0 TTFT p50=32.67s p90=73.43s p99=81.03s max=86.14s | longest 0-token run max=371 steps
+  long   n=56 miss=0 TTFT p50=39.90s p90=79.25s p99=92.00s max=92.00s | longest 0-token run max=371 steps
+== prio2048_ds_S3
+[safe_run] exit=0
+requests=273 steps=3685 matched_trace=273
+  short  n=64 miss=0 TTFT p50=1.82s p90=4.17s p99=5.42s max=5.42s | longest 0-token run max=15 steps
+  medium n=153 miss=0 TTFT p50=38.79s p90=80.15s p99=87.43s max=88.70s | longest 0-token run max=394 steps
+  long   n=56 miss=0 TTFT p50=46.56s p90=82.85s p99=94.56s max=94.56s | longest 0-token run max=407 steps
+== prio2048_ds_S3low
+[safe_run] exit=0
+requests=273 steps=3618 matched_trace=273
+  short  n=64 miss=0 TTFT p50=183.42s p90=276.74s p99=327.41s max=327.41s | longest 0-token run max=1550 steps
+  medium n=153 miss=0 TTFT p50=27.09s p90=62.04s p99=74.05s max=78.61s | longest 0-token run max=334 steps
+  long   n=56 miss=0 TTFT p50=32.09s p90=63.54s p99=86.42s max=86.42s | longest 0-token run max=341 steps
+== prio2048_ds_v3_S2base
+requests=187 steps=17805 matched_trace=187
+  short  n=57 miss=0 TTFT p50=0.45s p90=1.86s p99=4.53s max=4.53s | longest 0-token run max=29 steps
+  medium n=130 miss=0 TTFT p50=2.12s p90=4.26s p99=5.88s max=6.28s | longest 0-token run max=33 steps
+== prio2048_ds_v3_S2
+[safe_run] exit=0
+requests=238 steps=18395 matched_trace=238
+  short  n=57 miss=0 TTFT p50=0.58s p90=4.11s p99=11.82s max=11.82s | longest 0-token run max=67 steps
+  medium n=130 miss=0 TTFT p50=2.40s p90=6.19s p99=12.15s max=12.71s | longest 0-token run max=62 steps
+  long   n=51 miss=0 TTFT p50=6.16s p90=9.38s p99=13.64s max=13.64s | longest 0-token run max=46 steps
+== prio2048_ds_v3_S3
+[safe_run] exit=0
+requests=238 steps=18587 matched_trace=238
+  short  n=57 miss=0 TTFT p50=0.46s p90=0.61s p99=0.83s max=0.83s | longest 0-token run max=3 steps
+  medium n=130 miss=0 TTFT p50=2.63s p90=6.51s p99=10.57s max=10.79s | longest 0-token run max=52 steps
+  long   n=51 miss=0 TTFT p50=6.32s p90=9.34s p99=14.09s max=14.09s | longest 0-token run max=63 steps
+== prio2048_ds_v3_S3low
+[safe_run] exit=0
+requests=238 steps=18573 matched_trace=238
+  short  n=57 miss=0 TTFT p50=3.11s p90=6.80s p99=10.43s max=10.43s | longest 0-token run max=62 steps
+  medium n=130 miss=0 TTFT p50=2.44s p90=6.24s p99=9.97s max=11.34s | longest 0-token run max=50 steps
+  long   n=51 miss=0 TTFT p50=6.05s p90=9.68s p99=13.50s max=13.50s | longest 0-token run max=54 steps
