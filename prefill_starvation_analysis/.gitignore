@@ -1,0 +1,7 @@
+work/
+wheels/
+models/
+.venv/
+.venv-charts/
+__pycache__/
+*.pyc

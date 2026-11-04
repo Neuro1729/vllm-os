@@ -1,0 +1,9 @@
+{
+  "_doc": "Scheduler settings compared. All runs: vLLM 0.32.0, --scheduling-policy priority, --max-num-batched-tokens 2048, chunked prefill. 'ctrl' is written to $VLLM_SCHED_CTRL (thr = long_prefill_token_threshold, adaptive = long_prefill_token_threshold_adaptive, pcap = PR #65283 priority_prefill_budget_cap with its default 16 tokens). 'equal' = every request priority 0, i.e. FCFS order.",
+  "nocap":    {"label": "No per-request cap",              "ctrl": {"thr": 0,   "adaptive": false, "pcap": false}, "probe_priority": 2},
+  "cap512":   {"label": "Cap 512",                         "ctrl": {"thr": 512, "adaptive": false, "pcap": false}, "probe_priority": 2},
+  "adaptive": {"label": "Cap 512 + adaptive",              "ctrl": {"thr": 512, "adaptive": true,  "pcap": false}, "probe_priority": 2},
+  "cap256":   {"label": "Cap 256",                         "ctrl": {"thr": 256, "adaptive": false, "pcap": false}, "probe_priority": 2},
+  "pr65283":  {"label": "Cap 512 + adaptive + PR #65283",  "ctrl": {"thr": 512, "adaptive": true,  "pcap": true},  "probe_priority": 2},
+  "equal":    {"label": "Equal priority (FCFS control)",   "ctrl": {"thr": 512, "adaptive": true,  "pcap": false}, "probe_priority": 0}
+}
