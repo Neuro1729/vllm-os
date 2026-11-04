@@ -103,6 +103,12 @@ class Scheduler(SchedulerInterface):
         _trace_path = os.environ.get("VLLM_SCHED_TRACE")
         self._sched_trace = open(_trace_path, "a") if _trace_path else None
         self._sched_trace_n = 0
+        # Optional runtime control file (study only): VLLM_SCHED_CTRL=<json path>
+        # lets one server switch the long-prefill cap and its adaptive mode
+        # between benchmark runs.
+        self._sched_ctrl_path = os.environ.get("VLLM_SCHED_CTRL")
+        self._sched_ctrl_mtime = None
+        self._sched_ctrl_checked = 0.0
         self.lora_config = vllm_config.lora_config
         self.model_uses_mrope = vllm_config.model_config.uses_mrope
         self.kv_cache_config = kv_cache_config
@@ -595,8 +601,37 @@ class Scheduler(SchedulerInterface):
             num_new_tokens -= self.num_prefill_lookahead - remaining
         return max(num_new_tokens, 0)
 
+    def _apply_sched_ctrl(self) -> None:
+        now = time.monotonic()
+        if now - self._sched_ctrl_checked < 0.2:
+            return
+        self._sched_ctrl_checked = now
+        try:
+            mtime = os.stat(self._sched_ctrl_path).st_mtime
+        except OSError:
+            return
+        if mtime == self._sched_ctrl_mtime:
+            return
+        try:
+            ctrl = json.load(open(self._sched_ctrl_path))
+        except (OSError, ValueError):
+            return  # half-written; retry next time
+        self._sched_ctrl_mtime = mtime
+        sc = self.scheduler_config
+        if "thr" in ctrl:
+            object.__setattr__(sc, "long_prefill_token_threshold", int(ctrl["thr"]))
+        if "adaptive" in ctrl:
+            self.adaptive_long_prefill_threshold = bool(ctrl["adaptive"])
+        if self._sched_trace is not None:
+            self._sched_trace.write(
+                json.dumps({"ev": "ctrl", "t": time.time(), **ctrl}) + "\n"
+            )
+            self._sched_trace.flush()
+
     def schedule(self, throttle_prefills: bool = False) -> SchedulerOutput:
         self.current_step += 1
+        if self._sched_ctrl_path:
+            self._apply_sched_ctrl()
         # NOTE(woosuk) on the scheduling algorithm:
         # There's no "decoding phase" nor "prefill phase" in the scheduler.
         # Each request just has the num_computed_tokens and
@@ -1559,14 +1594,19 @@ class Scheduler(SchedulerInterface):
             self.sched_step_seq += 1
 
         if self._sched_trace is not None:
-            self._write_sched_trace(scheduler_output, long_prefill_token_threshold)
+            self._write_sched_trace(
+                scheduler_output, long_prefill_token_threshold, token_budget
+            )
 
         with record_function_or_nullcontext("schedule: update_after_schedule"):
             self._update_after_schedule(scheduler_output)
         return scheduler_output
 
     def _write_sched_trace(
-        self, scheduler_output: SchedulerOutput, prefill_cap: int
+        self,
+        scheduler_output: SchedulerOutput,
+        prefill_cap: int,
+        budget_left: int = 0,
     ) -> None:
         """One JSONL line per non-empty step (prefill-starvation study).
 
@@ -1590,11 +1630,19 @@ class Scheduler(SchedulerInterface):
                 n_dec += 1
             else:
                 pf[rid] = [n, req.num_computed_tokens, req.num_tokens]
-        starved = sum(
-            1
-            for r in itertools.chain(self.running, self.waiting)
-            if r.num_output_tokens == 0 and r.request_id not in nst
-        )
+        starved = 0
+        # sw: small (<=256-token prompt) requests still waiting for their first
+        # token that got 0 tokens this step -> [priority, R(unning)/W(aiting)].
+        # The reason is derived offline from budget_left / slots_full.
+        sw: dict[str, list] = {}
+        for r in itertools.chain(self.running, self.waiting):
+            if r.num_output_tokens == 0 and r.request_id not in nst:
+                starved += 1
+                if r.num_prompt_tokens <= 256:
+                    sw[r.request_id] = [
+                        r.priority,
+                        "R" if r.status == RequestStatus.RUNNING else "W",
+                    ]
         rec = {
             "t": time.time(),
             "step": self.current_step,
@@ -1606,7 +1654,10 @@ class Scheduler(SchedulerInterface):
             "starved": starved,
             "preempted": len(scheduler_output.preempted_req_ids or ()),
             "kv_usage": round(self.kv_cache_manager.usage, 4),
+            "left": budget_left,
+            "slots_full": len(self.running) >= self.max_num_running_reqs,
             "pf": pf,
+            "sw": sw,
         }
         self._sched_trace.write(json.dumps(rec, separators=(",", ":")) + "\n")
         self._sched_trace_n += 1
