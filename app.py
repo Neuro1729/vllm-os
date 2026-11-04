@@ -639,4 +639,7 @@ if __name__ == "__main__":
     parser.add_argument("--host", default="127.0.0.1")
     parser.add_argument("--port", type=int, default=7860)
     args = parser.parse_args()
+    if args.host not in ("127.0.0.1", "localhost", "::1"):
+        print(f"WARNING: binding to {args.host} exposes this unauthenticated app beyond this computer. "
+              "It has no login or rate limiting and can generate heavy GPU load; keep it on 127.0.0.1.")
     uvicorn.run(app, host=args.host, port=args.port, log_level="warning")

@@ -2,6 +2,26 @@
 
 A self-contained browser-based demonstration of **prefill head-of-line delay and priority-related starvation** on an **unmodified vLLM server**. Two swipeable experiment cards each show four real, individually submitted chats. Each card displays first-output-token latency (TTFT) and full completion time, measured from real streaming responses. No scheduler fork, GPU instrumentation, JavaScript build tool, or modified vLLM checkout is required.
 
+## Run on your own computer (one command)
+
+Everything runs locally and binds to `127.0.0.1`; there is no tunnel or public URL.
+
+```bash
+git clone -b scheduler-playground git@github.com:Neuro1729/vllm-os.git vllm-scheduler-playground
+cd vllm-scheduler-playground
+python run_local.py            # works on Windows, macOS and Linux (Python 3.9+)
+```
+
+`run_local.py` creates `.venv`, installs the three UI packages, starts vLLM (if the `vllm` command is on your PATH), waits until it is ready, starts the UI and opens http://127.0.0.1:7860. Ctrl+C stops both gracefully (SIGTERM, so the GPU is released cleanly).
+
+- **vLLM needs Linux and an NVIDIA GPU** (on Windows run everything inside WSL2). Install it in its own environment: `pip install vllm`. The first run downloads the model.
+- **Bigger model / longer prompts:** `python run_local.py --model Qwen/Qwen2.5-7B-Instruct --max-model-len 32768` (about 15 GB of weights; needs roughly 24 GB of VRAM).
+- **Already have a vLLM server** (another machine or a Docker container)? `python run_local.py --no-vllm --vllm-url http://HOST:8000`.
+- **Before/after comparison:** add `--mitigate` to turn on the 512-token prefill cap + adaptive floor.
+- Other options: `--gpu N`, `--max-num-seqs N`, `--ui-port N`, `--vllm-bin PATH`, `--no-browser`, `--dry-run` (print the commands only). See `python run_local.py --help`.
+
+The manual three-step setup below does the same thing without the launcher.
+
 ## Start in three steps
 
 **1. Start any compatible vLLM server** with `--scheduling-policy priority`, chunked prefill, and an instruction/chat model. Example using a single GPU:
@@ -105,7 +125,7 @@ Only `fastapi`, `uvicorn`, and `httpx` are required by the UI. vLLM and its GPU 
 | Keep long chats busy | off | Auto-replenishing P0 workload, hard stop at 60 s |
 | Added chats | 4 per experiment | Add up to 12 chats per experiment |
 
-Run `./run_ui.sh --host 127.0.0.1 --port 7860` to explicitly choose the UI binding. Use SSH tunneling instead of public exposure if showcasing a remote GPU server.
+Run `./run_ui.sh --host 127.0.0.1 --port 7860` to explicitly choose the UI binding. To reach a remote GPU box, forward the ports over SSH (`ssh -L 7860:127.0.0.1:7860 host`) instead of exposing the app.
 
 ## Verification
 
