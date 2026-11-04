@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#fafbff">
+  <title>vLLM · Scheduler Playground</title>
+  <link rel="stylesheet" href="/styles.css">
+  <script src="/app.js" defer></script>
+</head>
+<body>
+  <main class="shell">
+    <header class="top">
+      <div class="brand"><span class="mark">✳</span><div><h1>vLLM Playground</h1><p>Four chats. One GPU. Real scheduling.</p></div></div>
+      <div class="connection" id="connection"><span class="dot"></span><span id="connectionText">Checking vLLM…</span></div>
+    </header>
+    <section class="switcher" aria-label="Choose experiment">
+      <button class="nav-circle" id="prev" aria-label="Previous experiment">←</button>
+      <div class="experiment-info"><div class="eyebrow" id="experimentCount">EXPERIMENT 1 OF 2</div><h2 id="experimentTitle">All short requests</h2><p id="experimentSubtitle">Baseline · Four lightweight questions</p></div>
+      <button class="nav-circle" id="next" aria-label="Next experiment">→</button>
+    </section>
+    <div class="indicators"><button class="indicator selected" data-slide="0" aria-label="Baseline"></button><button class="indicator" data-slide="1" aria-label="Contention"></button></div>
+    <div class="toolbar">
+      <div class="toolbar-left"><span class="pill" id="scenarioPill">BASELINE</span><span class="toolbar-note">Send each chat independently. Results remain when switching cards.</span></div>
+      <div class="toolbar-right">
+        <label class="setting">Long prompt <select id="longTokens"><option value="2048">~2K tokens</option><option value="4096">~4K tokens</option><option value="8192" selected>~8K tokens</option><option value="12000">~12K tokens</option><option value="16384">~16K tokens</option><option value="24576">~24K tokens</option></select></label>
+        <label class="setting" id="bgWrap">Background <select id="bgConcurrency" title="Concurrent priority-0 long requests the server keeps in flight"><option value="8" selected>8 in flight</option><option value="12">12 in flight</option><option value="16">16 in flight</option></select></label>
+        <label class="repeat-control"><input id="repeat" type="checkbox" title="Auto-replenish priority-0 long prompts (8K tokens by default) so the server always has them queued. Hard stop after 60 seconds."><span>Keep long chats busy</span></label>
+      </div>
+    </div>
+    <section class="workload" id="workload" hidden aria-label="Background workload" aria-live="off">
+      <div class="wl-head"><b>Background P0 workload</b><span class="wl-state" id="wlState">Idle</span><span class="wl-note" id="wlNote"></span></div>
+      <div class="wl-grid">
+        <div class="wl-tile"><span>In flight</span><strong id="wlInflight">—</strong></div>
+        <div class="wl-tile"><span>Completed</span><strong id="wlDone">—</strong></div>
+        <div class="wl-tile"><span>P0 awaiting 1st token</span><strong id="wlAwait">—</strong></div>
+        <div class="wl-tile"><span>vLLM running / waiting</span><strong id="wlQueue">—</strong></div>
+        <div class="wl-tile"><span>KV cache</span><strong id="wlKv">—</strong></div>
+        <div class="wl-tile"><span>Time left</span><strong id="wlTime">—</strong></div>
+      </div>
+      <div class="wl-chat4" id="wlChat4"></div>
+      <div class="wl-detail" id="wlDetail"></div>
+    </section>
+    <div id="chats" class="chat-grid" role="region" aria-live="off"></div>
+    <div class="footer-actions"><button class="ghost" id="addChat">＋ Add chat</button><div class="footer-end"><button class="ghost" id="reset">Reset this experiment</button><button class="ghost" id="export">↓ Export results</button></div></div>
+    <section class="comparison" aria-label="Same request comparison">
+      <div><span class="eyebrow">THE COMPARISON</span><h3>Same tiny question, two workloads</h3><p>Chat 4 always asks “What is 2 + 2?” at low priority (P2). Chats 1–3 and the background workload use priority P0 (lower number = higher priority).</p></div>
+      <div class="compare-values"><div><span>All short · TTFT</span><strong id="baselineTTFT">—</strong></div><span class="compare-arrow">→</span><div><span>Long + short · TTFT</span><strong id="heavyTTFT">—</strong></div></div>
+    </section>
+    <p class="footnote"><strong>Real measurements only.</strong> TTFT is measured from vLLM HTTP submission to first nonempty streamed output. If no token arrives, the card shows a live waiting clock. A delayed response does not by itself prove zero GPU allocations or indefinite starvation. Start a priority-enabled vLLM server to use P0/P2.</p>
+  </main>
+</body>
+</html>
