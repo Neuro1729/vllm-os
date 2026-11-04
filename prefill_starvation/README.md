@@ -4,7 +4,8 @@
 seconds** for its first token while long prompts are being prefilled, even though it needs a
 single scheduler step and the GPU has free memory. Priority scheduling does not protect it:
 a **high**-priority short request still waits behind **low**-priority long prefills that were
-admitted first, and a **low**-priority short request has no upper bound on its wait (no aging).
+admitted first, and a **low**-priority short request has no upper bound on its wait (no aging),
+even though serving it would cost the high-priority work < 1 % of one step ([details](#a-small-request-should-get-a-chance-even-at-low-priority)).
 
 Measured on a real GPU with vLLM **v0.32.0** (this branch = upstream v0.32.0 + an opt-in
 scheduler trace), `--scheduling-policy priority`:
@@ -27,6 +28,38 @@ in each step's budget).
 
 ![worst TTFT](results/charts/01_worst_ttft_bars.png)
 ![zero-token runs](results/charts/02_zero_token_runs.png)
+
+## A small request should get a chance even at LOW priority
+
+Priority should decide who goes first when requests compete for the same budget. It should
+not let a request that needs a negligible slice of one step wait for the whole high-priority
+backlog. A 20-token prompt uses **< 1 % of a single step's 2048-token budget**. Serving it
+costs the high-priority work almost nothing:
+
+| GPU run (20-token probes at **low** priority, long prompts at **high** priority) | Probe tokens vs. high-priority prefill tokens | Low-priority probe: median / worst time-to-first-token | Longest 0-token run |
+|---|---|---|---|
+| 50 decodes + 8×30K prompts | 800 vs 240,000 (**0.33 %**) | 16.6 s / **25.9 s** (baseline 0.09 s) | 107 steps |
+| 600 decodes + 4×30K prompts | 800 vs 120,000 (**0.67 %**) | 5.9 s / **15.1 s** (baseline 1.9 s) | 53 steps |
+| steady high-prio stream of 16K prompts | 800 vs 800,000 (**0.10 %**) | 35.1 s / **54.0 s** | 307 steps |
+| real Mooncake trace, ~50 % load (short = prompt ≤ 2K) | n/a | 3.1 s / 10.4 s (baseline 0.45 s / 4.5 s) | 62 steps |
+| same trace, overloaded (0.35× speed) | n/a | **183 s / 327 s** | 1,550 steps |
+
+Giving every one of those probes its 20 tokens would have delayed the high-priority prompts by
+well under 1 % of their prefill work, i.e. less than one ~10–50 ms step. Instead the probes waited
+tens of seconds to minutes. vLLM has no rule that bounds this:
+
+* the WAITING queue is strict `(priority, arrival)` order, so a low-priority request is only
+  admitted when no higher-priority request is waiting *and* budget is left after the RUNNING
+  requests;
+* there is **no aging** (waiting time never raises priority) and **no size awareness** (a
+  20-token request is treated like a 30K-token one);
+* the chunk cap (`long_prefill_token_threshold`) limits how much *each* long prefill takes, but
+  with enough of them running they still take the whole budget.
+
+**Desired property for a fix:** a request whose remaining prefill is tiny (e.g. ≤ a few hundred
+tokens) is served within a bounded number of steps *regardless of its priority*. The cost to
+higher-priority work stays bounded by that small token count. Priority then orders the large
+work, not the trivially small one.
 
 ## Why it happens (vLLM v0.32.0 source, unchanged in v0.33.0 and `main` as of 2026-11-04)
 
