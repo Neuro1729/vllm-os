@@ -1,0 +1,6 @@
+      4 E   AttributeError: <tests.v1.kv_connector.unit.utils.MockKVConnector object at > has no attribute 'may_load_async'
+      2 E   TypeError: create_scheduler() got an unexpected keyword argument 'prefill_schedule_interval'
+      1 E   TypeError: create_scheduler() got an unexpected keyword argument 'lora_config'
+      1 E   AssertionError: assert {'bg'} == {'bg', 'holder'}
+      1 E   AssertionError: assert {'bg', 'bg2'} == {'bg2'}
+      1 9 failed, 81 passed, 14 warnings in 37.10s

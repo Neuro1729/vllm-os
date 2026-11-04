@@ -1,0 +1,46 @@
+burst nocap     N= 1 probes=24 max_zero_run=   6 unserved=0
+burst nocap     N= 2 probes=24 max_zero_run=  14 unserved=0
+burst nocap     N= 4 probes=32 max_zero_run=  30 unserved=0
+burst nocap     N= 8 probes=64 max_zero_run=  62 unserved=0
+burst nocap     N=16 probes=128 max_zero_run= 125 unserved=0
+burst cap512    N= 1 probes=24 max_zero_run=   0 unserved=0
+burst cap512    N= 2 probes=24 max_zero_run=   0 unserved=0
+burst cap512    N= 4 probes=32 max_zero_run=  30 unserved=0
+burst cap512    N= 8 probes=64 max_zero_run=  61 unserved=0
+burst cap512    N=16 probes=128 max_zero_run= 123 unserved=0
+burst adaptive  N= 1 probes=24 max_zero_run=   0 unserved=0
+burst adaptive  N= 2 probes=24 max_zero_run=   0 unserved=0
+burst adaptive  N= 4 probes=32 max_zero_run=  30 unserved=0
+burst adaptive  N= 8 probes=64 max_zero_run=  61 unserved=0
+burst adaptive  N=16 probes=128 max_zero_run= 123 unserved=0
+burst cap256    N= 1 probes=24 max_zero_run=   0 unserved=0
+burst cap256    N= 2 probes=24 max_zero_run=   0 unserved=0
+burst cap256    N= 4 probes=32 max_zero_run=   0 unserved=0
+burst cap256    N= 8 probes=64 max_zero_run=  61 unserved=0
+burst cap256    N=16 probes=128 max_zero_run= 123 unserved=0
+burst equal     N= 1 probes=24 max_zero_run=   0 unserved=0
+burst equal     N= 2 probes=24 max_zero_run=   0 unserved=0
+burst equal     N= 4 probes=32 max_zero_run=  30 unserved=0
+burst equal     N= 8 probes=64 max_zero_run=  61 unserved=0
+burst equal     N=16 probes=128 max_zero_run= 122 unserved=0
+stream adaptive  rho=0.5 max_zero_run=   14 unserved=0
+stream adaptive  rho=0.7 max_zero_run=   34 unserved=0
+stream adaptive  rho=0.85 max_zero_run=  104 unserved=0
+stream adaptive  rho=0.95 max_zero_run=  248 unserved=0
+stream adaptive  rho=0.99 max_zero_run=  254 unserved=0
+stream cap512    rho=0.5 max_zero_run=   14 unserved=0
+stream cap512    rho=0.7 max_zero_run=   34 unserved=0
+stream cap512    rho=0.85 max_zero_run=  104 unserved=0
+stream cap512    rho=0.95 max_zero_run=  248 unserved=0
+stream cap512    rho=0.99 max_zero_run=  254 unserved=0
+stream equal     rho=0.5 max_zero_run=   12 unserved=0
+stream equal     rho=0.7 max_zero_run=   24 unserved=0
+stream equal     rho=0.85 max_zero_run=   38 unserved=0
+stream equal     rho=0.95 max_zero_run=   59 unserved=0
+stream equal     rho=0.99 max_zero_run=   65 unserved=0
+unbounded cap512 {'steps': 20000, 'probe_served': False, 'probe_zero_steps': 19888, 'probe_max_zero_run': 19888, 'long_done': 2206, 'long_ttft_p50_ms': 11520.0, 'long_ttft_max_ms': 46620.0}
+unbounded adaptive {'steps': 20000, 'probe_served': False, 'probe_zero_steps': 19888, 'probe_max_zero_run': 19888, 'long_done': 2206, 'long_ttft_p50_ms': 11520.0, 'long_ttft_max_ms': 46620.0}
+unbounded cap256 {'steps': 20000, 'probe_served': True, 'probe_zero_steps': 19, 'probe_max_zero_run': 19, 'long_done': 2084, 'long_ttft_p50_ms': 11520.0, 'long_ttft_max_ms': 90900.0}
+unbounded nocap {'steps': 20000, 'probe_served': False, 'probe_zero_steps': 19888, 'probe_max_zero_run': 19888, 'long_done': 2272, 'long_ttft_p50_ms': 11520.0, 'long_ttft_max_ms': 11593.0}
+unbounded equal {'steps': 20000, 'probe_served': True, 'probe_zero_steps': 49, 'probe_max_zero_run': 49, 'long_done': 2206, 'long_ttft_p50_ms': 11520.0, 'long_ttft_max_ms': 46620.0}
+[safe_run] exit=0
