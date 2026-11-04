@@ -1,6 +1,8 @@
 # SPDX-License-Identifier: Apache-2.0
 # SPDX-FileCopyrightText: Copyright contributors to the vLLM project
 import itertools
+import json
+import os
 import time
 from collections import defaultdict, deque
 from collections.abc import Iterable
@@ -96,6 +98,11 @@ class Scheduler(SchedulerInterface):
         self.vllm_config = vllm_config
         self.scheduler_config = vllm_config.scheduler_config
         self.cache_config = vllm_config.cache_config
+        # Prefill-starvation study: optional per-step scheduling trace (JSONL).
+        # Enabled only when VLLM_SCHED_TRACE=<path> is set; zero cost otherwise.
+        _trace_path = os.environ.get("VLLM_SCHED_TRACE")
+        self._sched_trace = open(_trace_path, "a") if _trace_path else None
+        self._sched_trace_n = 0
         self.lora_config = vllm_config.lora_config
         self.model_uses_mrope = vllm_config.model_config.uses_mrope
         self.kv_cache_config = kv_cache_config
@@ -1551,9 +1558,59 @@ class Scheduler(SchedulerInterface):
         if self.defer_block_free and total_num_scheduled_tokens > 0:
             self.sched_step_seq += 1
 
+        if self._sched_trace is not None:
+            self._write_sched_trace(scheduler_output, long_prefill_token_threshold)
+
         with record_function_or_nullcontext("schedule: update_after_schedule"):
             self._update_after_schedule(scheduler_output)
         return scheduler_output
+
+    def _write_sched_trace(
+        self, scheduler_output: SchedulerOutput, prefill_cap: int
+    ) -> None:
+        """One JSONL line per non-empty step (prefill-starvation study).
+
+        pf: req_id -> [tokens this step, tokens computed before, prompt+output len]
+        for every prefill chunk; decodes are only counted (n_dec).
+        starved: requests that still wait for their first token and got 0
+        tokens this step (running partial prefills + waiting queue).
+        """
+        nst = scheduler_output.num_scheduled_tokens
+        if not nst:
+            return
+        pf: dict[str, list[int]] = {}
+        n_dec = 0
+        for rid, n in nst.items():
+            req = self.requests[rid]
+            if (
+                n == 1
+                and req.num_output_tokens > 0
+                and req.num_computed_tokens + 1 >= req.num_tokens
+            ):
+                n_dec += 1
+            else:
+                pf[rid] = [n, req.num_computed_tokens, req.num_tokens]
+        starved = sum(
+            1
+            for r in itertools.chain(self.running, self.waiting)
+            if r.num_output_tokens == 0 and r.request_id not in nst
+        )
+        rec = {
+            "t": time.time(),
+            "step": self.current_step,
+            "cap": prefill_cap,
+            "tok": scheduler_output.total_num_scheduled_tokens,
+            "n_dec": n_dec,
+            "run": len(self.running),
+            "wait": len(self.waiting),
+            "starved": starved,
+            "preempted": len(scheduler_output.preempted_req_ids or ()),
+            "kv_usage": round(self.kv_cache_manager.usage, 4),
+            "pf": pf,
+        }
+        self._sched_trace.write(json.dumps(rec, separators=(",", ":")) + "\n")
+        self._sched_trace_n += 1
+        self._sched_trace.flush()
 
     def _build_kv_connector_meta(
         self, connector: KVConnectorBase_V1, scheduler_output: SchedulerOutput
@@ -2614,6 +2671,20 @@ class Scheduler(SchedulerInterface):
         return self.kv_cache_manager.usage
 
     def add_request(self, request: Request) -> None:
+        if self._sched_trace is not None:
+            self._sched_trace.write(
+                json.dumps(
+                    {
+                        "ev": "add",
+                        "t": time.time(),
+                        "rid": request.request_id,
+                        "prompt": request.num_prompt_tokens,
+                        "prio": request.priority,
+                    },
+                    separators=(",", ":"),
+                )
+                + "\n"
+            )
         existing = self.requests.get(request.request_id)
         if existing is not None:
             update = StreamingUpdate.from_request(request)
