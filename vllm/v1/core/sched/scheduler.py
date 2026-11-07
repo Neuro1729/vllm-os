@@ -53,6 +53,7 @@ from vllm.v1.core.sched.request_queue import (
     RequestQueue,
     SchedulingPolicy,
     create_request_queue,
+    priority_aging_key,
 )
 from vllm.v1.core.sched.utils import check_stop, remove_all
 from vllm.v1.engine import EngineCoreEventType, EngineCoreOutput, EngineCoreOutputs
@@ -229,15 +230,24 @@ class Scheduler(SchedulerInterface):
                 f"Unknown scheduling policy: {self.scheduler_config.policy}"
             ) from e
         # Priority queues for requests.
-        self.waiting = create_request_queue(self.policy)
+        self.priority_aging_interval_ms = (
+            self.scheduler_config.priority_aging_interval_ms
+        )
+        self.waiting = create_request_queue(
+            self.policy, self.priority_aging_interval_ms
+        )
         # Waiting requests that hold KV blocks are always drained before
         # self.waiting: a block-holder must never sit behind a request whose
         # failed allocation would stop the scheduling scan.
-        self.kv_holding_waiting = create_request_queue(self.policy)
+        self.kv_holding_waiting = create_request_queue(
+            self.policy, self.priority_aging_interval_ms
+        )
         # With --max-num-inflight-kv-loads, requests that may load KV async but
         # haven't started, kept apart so their loads can start while the batch
         # is full without scanning past requests that need a running slot.
-        self.async_kv_waiting = create_request_queue(self.policy)
+        self.async_kv_waiting = create_request_queue(
+            self.policy, self.priority_aging_interval_ms
+        )
         # Waiting requests that are deferred, i.e. were skipped by the scheduling
         # scan or enqueued in a blocked status.
         self.deferred_waiting: set[Request] = set()
@@ -2858,6 +2868,14 @@ class Scheduler(SchedulerInterface):
             return async_kv
         async_head, head = async_kv.peek_request(), self.waiting.peek_request()
         if self.policy == SchedulingPolicy.PRIORITY:
+            if self.priority_aging_interval_ms > 0:
+                interval = self.priority_aging_interval_ms
+                return (
+                    async_kv
+                    if priority_aging_key(async_head, interval)
+                    < priority_aging_key(head, interval)
+                    else self.waiting
+                )
             return async_kv if async_head < head else self.waiting
         return async_kv if async_head.arrival_time < head.arrival_time else self.waiting
 

@@ -102,6 +102,13 @@ class SchedulerConfig:
     queued and running requests. Only applies when
     long_prefill_token_threshold is nonzero."""
 
+    priority_aging_interval_ms: int = Field(default=0, ge=0)
+    """One priority level of linear queue aging per interval in milliseconds.
+
+    0 disables aging. Applies only to priority scheduling. Waiting queue
+    ordering uses original arrival time and does not mutate request priority.
+    """
+
     max_num_queued_reqs: int | None = Field(default=None, ge=0)
     """Maximum number of requests that can be in-flight (waiting or running)
     at the same time, or None for no limit. When the limit is reached, new

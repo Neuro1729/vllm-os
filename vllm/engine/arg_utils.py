@@ -616,6 +616,7 @@ class EngineArgs:
     max_num_batched_tokens: int | None = None
     max_num_scheduled_tokens: int | None = None
     long_prefill_token_threshold: int = SchedulerConfig.long_prefill_token_threshold
+    priority_aging_interval_ms: int = SchedulerConfig.priority_aging_interval_ms
     long_prefill_token_threshold_adaptive: bool = (
         SchedulerConfig.long_prefill_token_threshold_adaptive
     )
@@ -1794,6 +1795,10 @@ class EngineArgs:
             "--long-prefill-token-threshold-adaptive",
             **scheduler_kwargs["long_prefill_token_threshold_adaptive"],
         )
+        scheduler_group.add_argument(
+            "--priority-aging-interval-ms",
+            **scheduler_kwargs["priority_aging_interval_ms"],
+        )
         # multi-step scheduling has been removed; corresponding arguments
         # are no longer supported.
         scheduler_group.add_argument(
@@ -2700,6 +2705,7 @@ class EngineArgs:
             policy=self.scheduling_policy,
             scheduler_cls=self.scheduler_cls,
             long_prefill_token_threshold=self.long_prefill_token_threshold,
+            priority_aging_interval_ms=self.priority_aging_interval_ms,
             long_prefill_token_threshold_adaptive=(
                 self.long_prefill_token_threshold_adaptive
             ),
