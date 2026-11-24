@@ -400,6 +400,13 @@ class ChatCompletionRequest(OpenAIBaseModel):
         default=None,
         description="Additional kwargs for structured outputs",
     )
+    band: Literal[1, 2] | None = Field(
+        default=None,
+        description=(
+            "Explicit experimental scheduling band: 1 protected or 2 aging. "
+            "Requires an authorized caller for Band 1."
+        ),
+    )
     priority: int = Field(
         default=0,
         ge=_INT64_MIN,
@@ -782,7 +789,12 @@ class ChatCompletionRequest(OpenAIBaseModel):
         if prompt_logprobs is None and self.echo:
             prompt_logprobs = self.top_logprobs
 
-        extra_args: dict[str, Any] = self.vllm_xargs if self.vllm_xargs else {}
+        extra_args: dict[str, Any] = dict(self.vllm_xargs or {})
+        # Only the validated top-level field may select a band on this API.
+        # Remove the hidden alias so vllm_xargs cannot bypass API validation.
+        extra_args.pop("priority_band", None)
+        if self.band is not None:
+            extra_args["priority_band"] = self.band
         if self.kv_transfer_params:
             # Pass in kv_transfer_params via extra_args
             extra_args["kv_transfer_params"] = self.kv_transfer_params

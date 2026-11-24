@@ -619,6 +619,11 @@ class EngineArgs:
     long_prefill_token_threshold_adaptive: bool = (
         SchedulerConfig.long_prefill_token_threshold_adaptive
     )
+    priority_band_fairness_horizon_ms: int = (
+        SchedulerConfig.priority_band_fairness_horizon_ms
+    )
+    priority_band_reference_gap: int = SchedulerConfig.priority_band_reference_gap
+    priority_band_default: int = SchedulerConfig.priority_band_default
     max_num_seqs: int | None = None
     max_num_active_seqs: int | None = SchedulerConfig.max_num_active_seqs
     max_num_inflight_kv_loads: int | None = SchedulerConfig.max_num_inflight_kv_loads
@@ -1805,6 +1810,18 @@ class EngineArgs:
             "--scheduling-policy", **scheduler_kwargs["policy"]
         )
         scheduler_group.add_argument(
+            "--priority-band-fairness-horizon-ms",
+            **scheduler_kwargs["priority_band_fairness_horizon_ms"],
+        )
+        scheduler_group.add_argument(
+            "--priority-band-reference-gap",
+            **scheduler_kwargs["priority_band_reference_gap"],
+        )
+        scheduler_group.add_argument(
+            "--priority-band-default",
+            **scheduler_kwargs["priority_band_default"],
+        )
+        scheduler_group.add_argument(
             "--enable-chunked-prefill",
             **{
                 **scheduler_kwargs["enable_chunked_prefill"],
@@ -2704,6 +2721,11 @@ class EngineArgs:
             is_multimodal_model=model_config.is_multimodal_model,
             is_encoder_decoder=model_config.is_encoder_decoder,
             policy=self.scheduling_policy,
+            priority_band_fairness_horizon_ms=(
+                self.priority_band_fairness_horizon_ms
+            ),
+            priority_band_reference_gap=self.priority_band_reference_gap,
+            priority_band_default=self.priority_band_default,
             scheduler_cls=self.scheduler_cls,
             long_prefill_token_threshold=self.long_prefill_token_threshold,
             long_prefill_token_threshold_adaptive=(

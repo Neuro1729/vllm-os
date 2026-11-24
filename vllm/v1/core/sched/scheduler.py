@@ -53,6 +53,8 @@ from vllm.v1.core.sched.request_queue import (
     RequestQueue,
     SchedulingPolicy,
     create_request_queue,
+    explicit_band_key,
+    explicit_band_victim_key,
 )
 from vllm.v1.core.sched.utils import check_stop, remove_all
 from vllm.v1.engine import EngineCoreEventType, EngineCoreOutput, EngineCoreOutputs
@@ -228,16 +230,51 @@ class Scheduler(SchedulerInterface):
             raise ValueError(
                 f"Unknown scheduling policy: {self.scheduler_config.policy}"
             ) from e
+        self.priority_band_fairness_horizon_ms = (
+            self.scheduler_config.priority_band_fairness_horizon_ms
+        )
+        self.priority_band_reference_gap = (
+            self.scheduler_config.priority_band_reference_gap
+        )
+        self.priority_band_default = self.scheduler_config.priority_band_default
+        if (
+            self.priority_band_fairness_horizon_ms > 0
+            and self.policy != SchedulingPolicy.PRIORITY
+        ):
+            raise ValueError(
+                "Explicit priority bands require --scheduling-policy priority"
+            )
         # Priority queues for requests.
-        self.waiting = create_request_queue(self.policy)
+        self.waiting = create_request_queue(
+            self.policy,
+            priority_band_fairness_horizon_ms=(
+                self.priority_band_fairness_horizon_ms
+            ),
+            priority_band_reference_gap=self.priority_band_reference_gap,
+            priority_band_default=self.priority_band_default,
+        )
         # Waiting requests that hold KV blocks are always drained before
         # self.waiting: a block-holder must never sit behind a request whose
         # failed allocation would stop the scheduling scan.
-        self.kv_holding_waiting = create_request_queue(self.policy)
+        self.kv_holding_waiting = create_request_queue(
+            self.policy,
+            priority_band_fairness_horizon_ms=(
+                self.priority_band_fairness_horizon_ms
+            ),
+            priority_band_reference_gap=self.priority_band_reference_gap,
+            priority_band_default=self.priority_band_default,
+        )
         # With --max-num-inflight-kv-loads, requests that may load KV async but
         # haven't started, kept apart so their loads can start while the batch
         # is full without scanning past requests that need a running slot.
-        self.async_kv_waiting = create_request_queue(self.policy)
+        self.async_kv_waiting = create_request_queue(
+            self.policy,
+            priority_band_fairness_horizon_ms=(
+                self.priority_band_fairness_horizon_ms
+            ),
+            priority_band_reference_gap=self.priority_band_reference_gap,
+            priority_band_default=self.priority_band_default,
+        )
         # Waiting requests that are deferred, i.e. were skipped by the scheduling
         # scan or enqueued in a blocked status.
         self.deferred_waiting: set[Request] = set()
@@ -952,10 +989,18 @@ class Scheduler(SchedulerInterface):
                     # The request cannot be scheduled.
                     # Preempt the lowest-priority request.
                     if self.policy == SchedulingPolicy.PRIORITY:
-                        preempted_req = max(
-                            self.running,
-                            key=lambda r: (r.priority, r.arrival_time),
-                        )
+                        if self.priority_band_fairness_horizon_ms > 0:
+                            preempted_req = max(
+                                self.running,
+                                key=lambda r: explicit_band_victim_key(
+                                    r, self.priority_band_default
+                                ),
+                            )
+                        else:
+                            preempted_req = max(
+                                self.running,
+                                key=lambda r: (r.priority, r.arrival_time),
+                            )
                     else:
                         preempted_req = self.running[-1]
 
@@ -2866,6 +2911,18 @@ class Scheduler(SchedulerInterface):
             return async_kv
         async_head, head = async_kv.peek_request(), self.waiting.peek_request()
         if self.policy == SchedulingPolicy.PRIORITY:
+            if self.priority_band_fairness_horizon_ms > 0:
+                key_kwargs = dict(
+                    fairness_horizon_ms=self.priority_band_fairness_horizon_ms,
+                    reference_gap=self.priority_band_reference_gap,
+                    default_band=self.priority_band_default,
+                )
+                return (
+                    async_kv
+                    if explicit_band_key(async_head, **key_kwargs)
+                    < explicit_band_key(head, **key_kwargs)
+                    else self.waiting
+                )
             return async_kv if async_head < head else self.waiting
         return async_kv if async_head.arrival_time < head.arrival_time else self.waiting
 

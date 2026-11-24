@@ -176,6 +176,20 @@ class SchedulerConfig:
     - "priority" means requests are handled based on given priority (lower
       value means earlier handling) and time of arrival deciding any ties)."""
 
+    priority_band_fairness_horizon_ms: int = Field(default=0, ge=0)
+    """Enable explicit 2-band priority scheduling if >0, otherwise disabled.
+
+    For Band 2, a waiting-time advantage of this many milliseconds offsets
+    a priority difference equal to priority_band_reference_gap. Band 1 is
+    strictly ordered by its original priority; no band crossing is allowed.
+    """
+
+    priority_band_reference_gap: int = Field(default=7, ge=1)
+    """Number of priority levels offset by the configured fairness horizon."""
+
+    priority_band_default: int = Field(default=2, ge=1, le=2)
+    """Band for requests without an explicit band (and non-OpenAI requests)."""
+
     disable_chunked_mm_input: bool = False
     """If set to true and chunked prefill is enabled, we do not want to
     partially schedule a multimodal item. Only used in V1
